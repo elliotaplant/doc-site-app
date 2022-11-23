@@ -7,8 +7,9 @@ import { Credentials } from 'google-auth-library';
 const handler: Handler = async () => {
   const tokensResponse = await fetchBackend('/drive-tokens');
   const tokens: Credentials = (await tokensResponse.json()) as any;
+  console.log('tokens', tokens);
 
-  // // Example of using Google Drive API to list filenames in user's Drive.
+  // Example of using Google Drive API to list filenames in user's Drive.
   const drive = google.drive('v3');
   const oauth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,
@@ -18,27 +19,15 @@ const handler: Handler = async () => {
 
   oauth2Client.setCredentials(tokens);
 
-  const response = await drive.files.list({
-    //   // q: "mimeType = 'application/vnd.google-apps.folder'",
-    // q: "parents in 'root' and mimeType = 'application/vnd.google-apps.folder'",
-    // auth: oauth2Client,
-    // pageSize: 10,
-    //   // fields: "nextPageToken, files(id, name)",
-    // });
-    pageSize: 100,
+  console.log('alpha');
+  const response = await drive.files.export({
     auth: oauth2Client,
-    fields: 'files(id, name)',
+    fileId: '1h68ecL4rxSxAHwj7sh5L5nxpu6Uih3PQa2DtHFLTK5Y',
+    mimeType: 'text/html',
   });
+  console.log('response.data', response.data);
 
-  const files = response.data.files;
-  if (files?.length) {
-    return {
-      body: JSON.stringify(response.data),
-      statusCode: 200,
-    };
-  }
-
-  return { statusCode: 400 };
+  return { statusCode: 200 };
 };
 
 export { handler };
