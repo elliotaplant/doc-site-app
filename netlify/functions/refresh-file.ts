@@ -1,6 +1,7 @@
 import { Handler } from '@netlify/functions';
 import { fetchBackend } from '../backend';
 import { exportFile } from '../drive';
+import { formatPage } from '../format-page';
 
 const handler: Handler = async () => {
   const response = await exportFile(
@@ -13,10 +14,12 @@ const handler: Handler = async () => {
     };
   }
 
+  const formattedPage = await formatPage(response.data);
+
   const resp = await fetchBackend('/pages', {
     method: 'POST',
     headers: { 'content-type': 'text/html' },
-    body: response.data,
+    body: formattedPage,
   });
 
   console.log('resp.', resp.status);

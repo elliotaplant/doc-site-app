@@ -13,6 +13,7 @@
     "@types/react-dom": "^18.0.0",
     "googleapis": "^109.0.1",
     "node-fetch": "^3.3.0",
+    "node-html-parser": "^6.1.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
