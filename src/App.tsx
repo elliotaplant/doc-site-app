@@ -37,6 +37,12 @@ function App() {
     >
       <button onClick={connectGoogleDrive}>Connect to Google Drive</button>
       <button onClick={refreshFile}>Refresh File</button>
+      <a href="https://docs.google.com/document/d/1h68ecL4rxSxAHwj7sh5L5nxpu6Uih3PQa2DtHFLTK5Y/edit#">
+        Edit doc
+      </a>
+      <a href="https://doc-site-backend.elliotaplant9602.workers.dev/test-site.html">
+        View Site
+      </a>
       <button onClick={listFiles}>List File</button>
       {files && (
         <pre>
