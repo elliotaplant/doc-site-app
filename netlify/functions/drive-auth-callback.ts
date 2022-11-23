@@ -1,4 +1,6 @@
 import { Handler } from '@netlify/functions';
+import { fetchBackend } from '../backend';
+
 const { google } = require('googleapis');
 
 const handler: Handler = async (event, context) => {
@@ -17,8 +19,14 @@ const handler: Handler = async (event, context) => {
   const { tokens } = await oauth2Client.getToken(code);
   oauth2Client.setCredentials(tokens);
 
+  // Store the tokens in the backend
+  await fetchBackend('/drive-tokens', {
+    method: 'POST',
+    body: JSON.stringify(tokens),
+  });
+
   return {
-    statusCode: 200,
+    statusCode: 201,
     body: JSON.stringify({ tokens }),
   };
 };
