@@ -27,7 +27,7 @@ const handler: Handler = async (event, context) => {
 
   return {
     statusCode: 201,
-    body: JSON.stringify({ tokens }),
+    body: 'Successfully connected your Google Drive account. You can close this page',
   };
 };
 
