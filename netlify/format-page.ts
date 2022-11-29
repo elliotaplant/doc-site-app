@@ -55,7 +55,7 @@ function element(
   return element;
 }
 
-async function streamToString(stream: Readable) {
+export async function streamToString(stream: Readable) {
   // lets have a ReadableStream as a stream variable
   const chunks: any = [];
 
