@@ -3,7 +3,16 @@ import { google } from 'googleapis';
 import { fetchBackend } from '../backend';
 
 const handler: Handler = async (event, context) => {
+  console.log('event.', event.httpMethod);
+
   const code: string | undefined = event.queryStringParameters?.code;
+  if (!code) {
+    return {
+      statusCode: 403,
+      body: 'No code available in query params',
+    };
+  }
+
   /**
    * To use OAuth2 authentication, we need access to a CLIENT_ID, CLIENT_SECRET, AND REDIRECT_URI
    * from the client_secret.json file. To get these credentials for your application, visit
@@ -18,6 +27,7 @@ const handler: Handler = async (event, context) => {
   const { tokens } = await oauth2Client.getToken(code);
   console.log('tokens', tokens);
   oauth2Client.setCredentials(tokens);
+  console.log('past setting creds');
 
   // Store the tokens in the backend
   await fetchBackend('/drive-tokens', {
