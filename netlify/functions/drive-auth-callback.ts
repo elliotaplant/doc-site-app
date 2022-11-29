@@ -3,8 +3,6 @@ import { google } from 'googleapis';
 import { fetchBackend } from '../backend';
 
 const handler: Handler = async (event, context) => {
-  console.log('event:', event.httpMethod, event.rawUrl);
-
   const code: string | undefined = event.queryStringParameters?.code;
   if (!code) {
     return {
@@ -25,9 +23,7 @@ const handler: Handler = async (event, context) => {
   );
 
   const { tokens } = await oauth2Client.getToken(code);
-  console.log('tokens', tokens);
   oauth2Client.setCredentials(tokens);
-  console.log('past setting creds');
 
   // Store the tokens in the backend
   await fetchBackend('/drive-tokens', {
