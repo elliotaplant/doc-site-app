@@ -2,8 +2,7 @@ import { Handler } from '@netlify/functions';
 import AdmZip from 'adm-zip';
 import { fetchBackend } from '../backend';
 import { exportFile } from '../drive';
-import { formatPage } from '../format-page';
-import { toBuffer } from '../buffer';
+import { formatPage, streamToBuffer } from '../format-page';
 
 const handler: Handler = async () => {
   const response = await exportFile(
@@ -15,11 +14,12 @@ const handler: Handler = async () => {
       statusCode: 404,
     };
   }
-  const buf = await toBuffer(response.data);
-  console.log('buf', buf.toString('utf-8'));
+  const buf = await streamToBuffer(response.data);
   const zip = new AdmZip(buf);
-  const zipEntries = zip.getEntries();
-  console.log('len:', zipEntries.length);
+  for (const zipEntry of zip.getEntries()) {
+    console.log(zipEntry.toString()); // outputs zip entries information
+    console.log(zipEntry.getData().toString('utf8'));
+  }
 
   if (Math.random() < 2) {
     return { statusCode: 200 };

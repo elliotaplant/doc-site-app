@@ -55,7 +55,7 @@ function element(
   return element;
 }
 
-export async function streamToString(stream: Readable) {
+export async function streamToBuffer(stream: Readable) {
   // lets have a ReadableStream as a stream variable
   const chunks: any = [];
 
@@ -63,5 +63,10 @@ export async function streamToString(stream: Readable) {
     chunks.push(Buffer.from(chunk));
   }
 
-  return Buffer.concat(chunks).toString('utf-8');
+  return Buffer.concat(chunks);
+}
+
+export async function streamToString(stream: Readable) {
+  const buf = await streamToBuffer(stream);
+  return buf.toString('utf-8');
 }
