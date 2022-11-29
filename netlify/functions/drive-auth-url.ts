@@ -25,6 +25,10 @@ const handler: Handler = async () => {
     scope: scopes,
     // Enable incremental authorization. Recommended as a best practice.
     include_granted_scopes: true,
+    // Requires the user to click the Allow button which gets us a refresh token.
+    // This is only necessary because I use the same account and client_id in dev and prod.
+    // If either of those changes between envs, we could remove this
+    prompt: 'consent',
   });
 
   return {

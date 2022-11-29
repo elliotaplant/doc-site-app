@@ -3,7 +3,7 @@ import { google } from 'googleapis';
 import { fetchBackend } from '../backend';
 
 const handler: Handler = async (event, context) => {
-  console.log('event.', event.httpMethod);
+  console.log('event:', event.httpMethod, event.rawUrl);
 
   const code: string | undefined = event.queryStringParameters?.code;
   if (!code) {
