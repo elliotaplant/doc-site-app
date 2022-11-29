@@ -1,7 +1,6 @@
 import { Handler } from '@netlify/functions';
+import { google } from 'googleapis';
 import { fetchBackend } from '../backend';
-
-const { google } = require('googleapis');
 
 const handler: Handler = async (event, context) => {
   const code: string | undefined = event.queryStringParameters?.code;
@@ -17,6 +16,7 @@ const handler: Handler = async (event, context) => {
   );
 
   const { tokens } = await oauth2Client.getToken(code);
+  console.log('tokens', tokens);
   oauth2Client.setCredentials(tokens);
 
   // Store the tokens in the backend

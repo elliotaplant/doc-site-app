@@ -1,5 +1,5 @@
 import { Handler } from '@netlify/functions';
-const { google } = require('googleapis');
+import { google } from 'googleapis';
 
 const handler: Handler = async () => {
   /**
