@@ -32,6 +32,7 @@ const handler: Handler = async () => {
     return { statusCode: 403, body: 'No html file found' };
   }
 
+  // Serialize the filename so it's consistent between the url and the storage
   const serializedHtmlFileName = htmlFile.entryName
     .toLowerCase()
     .replace(/\s+/g, '-');
@@ -59,7 +60,7 @@ const handler: Handler = async () => {
     }
   }
 
-  // Store the HTML document for the page
+  // Format and store the HTML document for the page
   const formattedPage = await formatPage(htmlFile.getData(), imageReplacements);
   const resp = await savePage(
     `${PROJECT_ID}/${serializedHtmlFileName}`,
