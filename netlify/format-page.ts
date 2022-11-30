@@ -1,8 +1,11 @@
 import { Readable } from 'stream';
 import { parse, HTMLElement } from 'node-html-parser';
 
-export async function formatPage(rawPage: Readable) {
-  const pageAsString = await streamToString(rawPage);
+export async function formatPage(
+  rawPage: Buffer,
+  imageReplacements: Record<string, string>
+) {
+  const pageAsString = rawPage.toString('utf8');
   const root = parse(pageAsString);
 
   const headNode = root.querySelector('head');
@@ -28,6 +31,12 @@ export async function formatPage(rawPage: Readable) {
   );
   headNode?.appendChild(metaElement);
   headNode?.appendChild(styleElement);
+
+  for (const [originalSrc, newSrc] of Object.entries(imageReplacements)) {
+    root
+      .querySelectorAll(`img[src="${originalSrc}"]`)
+      .forEach((img) => img.setAttribute('src', newSrc));
+  }
 
   return root.toString();
 }
@@ -55,7 +64,7 @@ function element(
   return element;
 }
 
-async function streamToString(stream: Readable) {
+export async function streamToBuffer(stream: Readable) {
   // lets have a ReadableStream as a stream variable
   const chunks: any = [];
 
@@ -63,5 +72,10 @@ async function streamToString(stream: Readable) {
     chunks.push(Buffer.from(chunk));
   }
 
-  return Buffer.concat(chunks).toString('utf-8');
+  return Buffer.concat(chunks);
+}
+
+export async function streamToString(stream: Readable) {
+  const buf = await streamToBuffer(stream);
+  return buf.toString('utf-8');
 }

@@ -21,7 +21,7 @@ export async function exportFile(fileId: string) {
   const drive = google.drive('v3');
   const auth = await getOauth2Client();
   return drive.files.export(
-    { auth, fileId, mimeType: 'text/html' },
+    { auth, fileId, mimeType: 'application/zip' },
     { responseType: 'stream' }
   );
 }
