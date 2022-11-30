@@ -1,8 +1,9 @@
 import { Handler } from '@netlify/functions';
 import AdmZip from 'adm-zip';
-import { fetchBackend } from '../backend';
+import { savePage } from '../backend';
 import { exportFile } from '../drive';
 import { formatPage, streamToBuffer } from '../format-page';
+const PROJECT_ID = 'first-project';
 
 const handler: Handler = async () => {
   const response = await exportFile(
@@ -14,26 +15,63 @@ const handler: Handler = async () => {
       statusCode: 404,
     };
   }
+
+  // Decode the exported zip in memory
   const buf = await streamToBuffer(response.data);
   const zip = new AdmZip(buf);
-  for (const zipEntry of zip.getEntries()) {
-    console.log(zipEntry.toString()); // outputs zip entries information
-    console.log(zipEntry.getData().toString('utf8'));
+
+  // Find all the image entries and the html file
+  const images = zip
+    .getEntries()
+    .filter((entry) => entry.entryName.startsWith('images/'));
+  const htmlFile = zip
+    .getEntries()
+    .find((entry) => entry.entryName.endsWith('.html'));
+
+  if (!htmlFile) {
+    return { statusCode: 403, body: 'No html file found' };
   }
 
-  if (Math.random() < 2) {
-    return { statusCode: 200 };
+  const serializedHtmlFileName = htmlFile.entryName
+    .toLowerCase()
+    .replace(/\s+/g, '-');
+  const serializedPageName = serializedHtmlFileName.slice(
+    0,
+    serializedHtmlFileName.lastIndexOf('.')
+  );
+
+  // Put images in subfolders and store them
+  const imageReplacements: Record<string, string> = {};
+  for (const imageEntry of images) {
+    const filepath = imageEntry.entryName
+      .toLowerCase()
+      .replace(/\//, `/${serializedPageName}/`);
+
+    imageReplacements[imageEntry.entryName] = filepath;
+
+    const resp = await savePage(
+      `${PROJECT_ID}/${filepath}`,
+      imageEntry.getData()
+    );
+
+    if (!resp.ok) {
+      return { statusCode: 500, body: `Unable to save ${filepath}` };
+    }
   }
 
-  const formattedPage = await formatPage(response.data);
+  // Store the HTML document for the page
+  const formattedPage = await formatPage(htmlFile.getData(), imageReplacements);
+  const resp = await savePage(
+    `${PROJECT_ID}/${serializedHtmlFileName}`,
+    formattedPage
+  );
 
-  const resp = await fetchBackend('/pages', {
-    method: 'POST',
-    headers: { 'content-type': 'text/html' },
-    body: formattedPage,
-  });
-
-  console.log('resp.', resp.status);
+  if (!resp.ok) {
+    return {
+      statusCode: 500,
+      body: `Unable to save ${serializedHtmlFileName}`,
+    };
+  }
 
   return { statusCode: 201 };
 };

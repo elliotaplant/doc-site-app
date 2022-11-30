@@ -1,8 +1,11 @@
 import { Readable } from 'stream';
 import { parse, HTMLElement } from 'node-html-parser';
 
-export async function formatPage(rawPage: Readable) {
-  const pageAsString = await streamToString(rawPage);
+export async function formatPage(
+  rawPage: Buffer,
+  imageReplacements: Record<string, string>
+) {
+  const pageAsString = rawPage.toString('utf8');
   const root = parse(pageAsString);
 
   const headNode = root.querySelector('head');
@@ -28,6 +31,12 @@ export async function formatPage(rawPage: Readable) {
   );
   headNode?.appendChild(metaElement);
   headNode?.appendChild(styleElement);
+
+  for (const [originalSrc, newSrc] of Object.entries(imageReplacements)) {
+    root
+      .querySelectorAll(`img[src="${originalSrc}"]`)
+      .forEach((img) => img.setAttribute('src', newSrc));
+  }
 
   return root.toString();
 }

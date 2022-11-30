@@ -9,3 +9,7 @@ export function fetchBackend(path: string, options: RequestInit = {}) {
     },
   });
 }
+
+export function savePage(key: string, contents: Buffer | string) {
+  return fetchBackend(`/pages/${key}`, { method: 'POST', body: contents });
+}
