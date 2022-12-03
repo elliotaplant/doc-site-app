@@ -13,7 +13,10 @@ function App() {
 
   const refreshFile = async () => {
     try {
-      await fetch('/.netlify/functions/refresh-file');
+      const resp = await fetch('/.netlify/functions/refresh-file');
+      if (!resp.ok) {
+        throw new Error(await resp.text());
+      }
       alert('Success');
     } catch (e) {
       alert(e);

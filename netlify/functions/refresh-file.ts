@@ -1,14 +1,56 @@
 import { Handler } from '@netlify/functions';
 import AdmZip from 'adm-zip';
 import { savePage } from '../backend';
-import { exportFile } from '../drive';
+import { exportFile, listFiles } from '../drive';
 import { formatPage, streamToBuffer } from '../format-page';
 const PROJECT_ID = 'first-project';
+const ROOT_FOLDER_ID = '1aji29iDimzSX33wRNxx1HDJej7ipJ7sS';
+const FOLDER_MIME_TYPE = 'application/vnd.google-apps.folder';
+const DOC_MIME_TYPE = 'application/vnd.google-apps.document';
 
 const handler: Handler = async () => {
-  const response = await exportFile(
-    '1h68ecL4rxSxAHwj7sh5L5nxpu6Uih3PQa2DtHFLTK5Y'
-  );
+  const seen = new Set();
+  try {
+    const queue = [{ id: ROOT_FOLDER_ID, path: [] as string[] }];
+    while (queue.length) {
+      const currentFile = queue.pop();
+      if (!currentFile || seen.has(currentFile)) {
+        continue;
+      }
+
+      const response = await listFiles(`parents in '${currentFile.id}'`);
+
+      const { files } = response.data;
+
+      const folders =
+        files?.filter((file) => file.mimeType === FOLDER_MIME_TYPE) || [];
+
+      queue.unshift(
+        ...folders.map(({ id, name }) => ({
+          id: id || '',
+          path: [...currentFile?.path, serializeName(name || '')],
+        }))
+      );
+
+      const docs = files
+        ?.filter((file) => file.mimeType === DOC_MIME_TYPE)
+        .map((file) => file.id);
+
+      await Promise.all(
+        (docs || []).map((id) => saveFile(id || '', currentFile.path))
+      );
+    }
+    return { statusCode: 201 };
+  } catch (e) {
+    return {
+      statusCode: 500,
+      body: e.toString(),
+    };
+  }
+};
+
+async function saveFile(fileId: string, path: string[]) {
+  const response = await exportFile(fileId);
 
   if (!response.data) {
     return {
@@ -33,9 +75,7 @@ const handler: Handler = async () => {
   }
 
   // Serialize the filename so it's consistent between the url and the storage
-  const serializedHtmlFileName = htmlFile.entryName
-    .toLowerCase()
-    .replace(/\s+/g, '-');
+  const serializedHtmlFileName = serializeName(htmlFile.entryName);
   const serializedPageName = serializedHtmlFileName.slice(
     0,
     serializedHtmlFileName.lastIndexOf('.')
@@ -51,7 +91,7 @@ const handler: Handler = async () => {
     imageReplacements[imageEntry.entryName] = filepath;
 
     const resp = await savePage(
-      `${PROJECT_ID}/${filepath}`,
+      [PROJECT_ID, ...path, filepath].join('/'),
       imageEntry.getData()
     );
 
@@ -63,7 +103,7 @@ const handler: Handler = async () => {
   // Format and store the HTML document for the page
   const formattedPage = await formatPage(htmlFile.getData(), imageReplacements);
   const resp = await savePage(
-    `${PROJECT_ID}/${serializedHtmlFileName}`,
+    [PROJECT_ID, ...path, serializedHtmlFileName].join('/'),
     formattedPage
   );
 
@@ -75,6 +115,10 @@ const handler: Handler = async () => {
   }
 
   return { statusCode: 201 };
-};
+}
+
+function serializeName(name: string) {
+  return name.toLowerCase().replace(/\s+/g, '-');
+}
 
 export { handler };

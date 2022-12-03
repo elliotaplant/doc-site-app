@@ -3,7 +3,7 @@ import { listFiles } from '../drive';
 
 const handler: Handler = async () => {
   const response = await listFiles(
-    "parents in 'root' and mimeType = 'application/vnd.google-apps.folder'"
+    "parents in '1aji29iDimzSX33wRNxx1HDJej7ipJ7sS'"
   );
 
   const files = response.data.files;
