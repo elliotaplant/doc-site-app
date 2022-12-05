@@ -1,5 +1,6 @@
 import { Handler } from '@netlify/functions';
 import AdmZip from 'adm-zip';
+import { drive_v3 } from 'googleapis';
 import { savePage } from '../backend';
 import { exportFile, listFiles } from '../drive';
 import { formatPage, streamToBuffer } from '../format-page';
@@ -17,6 +18,10 @@ const handler: Handler = async () => {
       if (!currentFile || seen.has(currentFile)) {
         continue;
       }
+      console.log(
+        'Processing path',
+        JSON.stringify({ id: currentFile.id, path: currentFile.path.join('/') })
+      );
 
       const response = await listFiles(`parents in '${currentFile.id}'`);
 
@@ -32,12 +37,10 @@ const handler: Handler = async () => {
         }))
       );
 
-      const docs = files
-        ?.filter((file) => file.mimeType === DOC_MIME_TYPE)
-        .map((file) => file.id);
+      const docs = files?.filter((file) => file.mimeType === DOC_MIME_TYPE);
 
       await Promise.all(
-        (docs || []).map((id) => saveFile(id || '', currentFile.path))
+        (docs || []).map((docFile) => saveFile(docFile, currentFile.path))
       );
     }
     return { statusCode: 201 };
@@ -49,8 +52,15 @@ const handler: Handler = async () => {
   }
 };
 
-async function saveFile(fileId: string, path: string[]) {
-  const response = await exportFile(fileId);
+async function saveFile(driveFile: drive_v3.Schema$File, path: string[]) {
+  if (!driveFile.id) {
+    return {
+      statusCode: 404,
+      body: 'Doc file did not have ID',
+    };
+  }
+
+  const response = await exportFile(driveFile.id);
 
   if (!response.data) {
     return {
@@ -75,10 +85,22 @@ async function saveFile(fileId: string, path: string[]) {
   }
 
   // Serialize the filename so it's consistent between the url and the storage
-  const serializedHtmlFileName = serializeName(htmlFile.entryName);
+  const serializedHtmlFileName = serializeName(
+    driveFile.name ? driveFile.name + '.html' : htmlFile.name
+  );
   const serializedPageName = serializedHtmlFileName.slice(
     0,
     serializedHtmlFileName.lastIndexOf('.')
+  );
+
+  console.log(
+    'Saving doc',
+    JSON.stringify({
+      id: driveFile.id,
+      path: path.join('/'),
+      serializedHtmlFileName,
+      images: images.length,
+    })
   );
 
   // Put images in subfolders and store them
