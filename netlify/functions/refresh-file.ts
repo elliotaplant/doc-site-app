@@ -1,17 +1,25 @@
 import { Handler } from '@netlify/functions';
-import AdmZip, { IZipEntry } from 'adm-zip';
+import AdmZip from 'adm-zip';
 import { drive_v3 } from 'googleapis';
 import { savePage } from '../backend';
 import { exportDoc, listFoldersAndDocs } from '../drive';
 import { formatPage } from '../format-page';
 import { serializeName } from '../naming';
-const PROJECT_ID = 'first-project';
 const ROOT_FOLDER_ID = '1aji29iDimzSX33wRNxx1HDJej7ipJ7sS';
 
-const handler: Handler = async () => {
+const handler: Handler = async (event) => {
+  if (!event.body) {
+    throw new Error('No project ID provided');
+  }
+  const parsedBody = JSON.parse(event.body);
+  const projectId: string = parsedBody.projectId;
+  if (!projectId) {
+    throw new Error('No project ID provided');
+  }
+
   try {
     const seen = new Set();
-    const queue = [{ id: ROOT_FOLDER_ID, path: [] as string[] }];
+    const queue = [{ id: ROOT_FOLDER_ID, path: [projectId] }];
     const docsToSave: { docFile: drive_v3.Schema$File; path: string[] }[] = [];
     while (queue.length) {
       const currentFile = queue.pop();
@@ -79,7 +87,7 @@ async function saveFile(driveFile: drive_v3.Schema$File, path: string[]) {
 
     imageReplacements[imageEntry.entryName] = filepath;
 
-    const resp = await savePage([PROJECT_ID, ...path, filepath].join('/'), imageEntry.getData());
+    const resp = await savePage([...path, filepath].join('/'), imageEntry.getData());
 
     if (!resp.ok) {
       return { statusCode: 500, body: `Unable to save ${filepath}` };
@@ -88,10 +96,7 @@ async function saveFile(driveFile: drive_v3.Schema$File, path: string[]) {
 
   // Format and store the HTML document for the page
   const formattedPage = await formatPage(htmlFile.getData(), imageReplacements);
-  const resp = await savePage(
-    [PROJECT_ID, ...path, serializedHtmlFileName].join('/'),
-    formattedPage
-  );
+  const resp = await savePage([...path, serializedHtmlFileName].join('/'), formattedPage);
 
   if (!resp.ok) {
     throw new Error(`Page save error: ${resp.statusText}`);

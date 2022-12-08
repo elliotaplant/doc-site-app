@@ -13,7 +13,14 @@ function App() {
 
   const refreshFile = async () => {
     try {
-      const resp = await fetch('/.netlify/functions/refresh-file');
+      const projectId = 'first-project';
+      const resp = await fetch('/.netlify/functions/refresh-file', {
+        method: 'post',
+        body: JSON.stringify({ projectId }),
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
       if (!resp.ok) {
         throw new Error(await resp.text());
       }
@@ -43,11 +50,7 @@ function App() {
       <a href="https://docs.google.com/document/d/1h68ecL4rxSxAHwj7sh5L5nxpu6Uih3PQa2DtHFLTK5Y/edit#">
         Edit doc
       </a>
-      <a
-        href={process.env.REACT_APP_EXAMPLE_SITE}
-        target="_blank"
-        rel="noreferrer"
-      >
+      <a href={process.env.REACT_APP_EXAMPLE_SITE} target="_blank" rel="noreferrer">
         Example Site
       </a>
       <button onClick={listFiles}>List File</button>
