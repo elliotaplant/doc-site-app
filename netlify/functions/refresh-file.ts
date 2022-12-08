@@ -1,11 +1,11 @@
 import { Handler } from '@netlify/functions';
 import AdmZip from 'adm-zip';
 import { drive_v3 } from 'googleapis';
-import { savePage } from '../backend';
+import { fetchBackend, savePage } from '../backend';
+import { USER_ID } from '../constants';
 import { exportDoc, listFoldersAndDocs } from '../drive';
 import { formatPage } from '../format-page';
 import { serializeName } from '../naming';
-const ROOT_FOLDER_ID = '1aji29iDimzSX33wRNxx1HDJej7ipJ7sS';
 
 const handler: Handler = async (event) => {
   if (!event.body) {
@@ -17,9 +17,17 @@ const handler: Handler = async (event) => {
     throw new Error('No project ID provided');
   }
 
+  const projectsResponse = await fetchBackend(`/projects?userId=${USER_ID}`);
+  const body: any = await projectsResponse.json();
+  const project = body?.find((project) => project.projectId === projectId);
+  if (!project) {
+    return { statusCode: 404, body: 'Project not found' };
+  }
+  console.log('project', project);
+
   try {
     const seen = new Set();
-    const queue = [{ id: ROOT_FOLDER_ID, path: [projectId] }];
+    const queue = [{ rootFolderId: project.rootFileId, path: [projectId] }];
     const docsToSave: { docFile: drive_v3.Schema$File; path: string[] }[] = [];
     while (queue.length) {
       const currentFile = queue.pop();
@@ -28,14 +36,14 @@ const handler: Handler = async (event) => {
       }
       console.log(
         'Processing path',
-        JSON.stringify({ id: currentFile.id, path: currentFile.path.join('/') })
+        JSON.stringify({ rootFolderId: currentFile.rootFolderId, path: currentFile.path.join('/') })
       );
 
-      const { folders, docs } = await listFoldersAndDocs(currentFile.id);
+      const { folders, docs } = await listFoldersAndDocs(currentFile.rootFolderId);
 
       queue.unshift(
         ...folders.map(({ id, name }) => ({
-          id: id || '',
+          rootFolderId: id || '',
           path: [...currentFile?.path, serializeName(name || '')],
         }))
       );
