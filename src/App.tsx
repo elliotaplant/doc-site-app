@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import './App.css';
 
 const driveFolderRoot = 'https://drive.google.com/drive/folders';
 
 function App() {
   const [projects, setProjects] = useState<any>(null);
+  const [driveId, setDriveId] = useState('');
+  const [projectIdToCreate, setProjectIdToCreate] = useState('');
 
   useEffect(() => {
     let unmounted = false;
@@ -44,21 +46,26 @@ function App() {
     }
   };
 
-  const createProject = async () => {
+  const createProject = async (e: FormEvent) => {
     try {
+      e.preventDefault();
       const resp = await fetch('/.netlify/functions/project', {
         method: 'post',
         body: JSON.stringify({
-          projectId: 'second-project',
-          rootFileId: '1wM8uLpdr0wA0WcAaBcp5DaAhhBna1xkT',
+          projectId: projectIdToCreate,
+          rootFileId: driveId,
         }),
         headers: {
           'content-type': 'application/json',
         },
       });
+      console.log('resp.status', resp.status);
       if (!resp.ok) {
         throw new Error(await resp.text());
       }
+
+      setDriveId('');
+      setProjectIdToCreate('');
       alert('Success');
     } catch (e) {
       alert(e);
@@ -78,9 +85,21 @@ function App() {
       <button style={{ width: 100 }} onClick={connectGoogleDrive}>
         Connect to Google Drive
       </button>
-      <button style={{ width: 100 }} onClick={createProject}>
-        Create project
-      </button>
+      <form onSubmit={createProject} style={{ display: 'flex', gap: '10px' }}>
+        <input
+          value={projectIdToCreate}
+          onChange={(e) => setProjectIdToCreate(e.currentTarget.value)}
+          placeholder="project-id"
+        />
+        <input
+          value={driveId}
+          onChange={(e) => setDriveId(e.currentTarget.value)}
+          placeholder="abc-123-drive-id"
+        />
+        <button style={{ width: 100 }} onClick={createProject}>
+          Create project
+        </button>
+      </form>
       {projects && (
         <ul>
           {projects.map((project: any) => (

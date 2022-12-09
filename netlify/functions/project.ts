@@ -18,7 +18,9 @@ const handler: Handler = async (event, context) => {
   // Create a project
   if (event.httpMethod === 'POST') {
     const { projectId, rootFileId } = JSON.parse(event.body || '');
-    // TODO: put this in a real database
+    // TODO: Put this in a real database.
+    // TODO: Make sure project id's are unique
+    // TODO: Make sure the projectId actually belongs to the user in google
     if (!projectId && !rootFileId) {
       throw new Error('No projectId and rootFileId provided');
     }
