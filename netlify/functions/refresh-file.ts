@@ -18,12 +18,11 @@ const handler: Handler = async (event) => {
   }
 
   const projectsResponse = await fetchBackend(`/projects?userId=${USER_ID}`);
-  const body: any = await projectsResponse.json();
-  const project = body?.find((project) => project.projectId === projectId);
+  const projects: any = await projectsResponse.json();
+  const project = projects?.find((project) => project.projectId === projectId);
   if (!project) {
     return { statusCode: 404, body: 'Project not found' };
   }
-  console.log('project', project);
 
   try {
     const seen = new Set();
@@ -50,7 +49,23 @@ const handler: Handler = async (event) => {
 
       docsToSave.push(...docs.map((docFile) => ({ docFile, path: currentFile.path })));
     }
-    await Promise.all(docsToSave.map(({ docFile, path }) => saveFile(docFile, path)));
+    const savedFiles = await Promise.all(
+      docsToSave.map(({ docFile, path }) => saveFile(docFile, path))
+    );
+
+    const updatedProjects = projects.map((project) =>
+      project.projectId === projectId ? { ...project, rootFile: savedFiles[0] } : project
+    );
+    const requestBody = JSON.stringify(updatedProjects);
+    const response = await fetchBackend(`/projects?userId=${USER_ID}`, {
+      method: 'POST',
+      body: requestBody,
+    });
+
+    if (!response.ok) {
+      return { statusCode: 500, body: 'Unable to save rootFile' };
+    }
+
     return { statusCode: 201 };
   } catch (e) {
     return {
@@ -98,19 +113,20 @@ async function saveFile(driveFile: drive_v3.Schema$File, path: string[]) {
     const resp = await savePage([...path, filepath].join('/'), imageEntry.getData());
 
     if (!resp.ok) {
-      return { statusCode: 500, body: `Unable to save ${filepath}` };
+      throw new Error(`Unable to save ${filepath}: ${resp.statusText}`);
     }
   }
 
   // Format and store the HTML document for the page
+  const fullHtmlFilePath = [...path, serializedHtmlFileName].join('/');
   const formattedPage = await formatPage(htmlFile.getData(), imageReplacements);
-  const resp = await savePage([...path, serializedHtmlFileName].join('/'), formattedPage);
+  const resp = await savePage(fullHtmlFilePath, formattedPage);
 
   if (!resp.ok) {
     throw new Error(`Page save error: ${resp.statusText}`);
   }
 
-  return { statusCode: 201 };
+  return fullHtmlFilePath;
 }
 
 function serializePageNaming(driveFile: drive_v3.Schema$File, htmlFile: AdmZip.IZipEntry) {

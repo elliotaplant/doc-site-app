@@ -112,13 +112,15 @@ function App() {
               <a href={`${driveFolderRoot}/${project.rootFileId}`} target="_blank" rel="noreferrer">
                 Edit doc
               </a>
-              <a
-                href={`${process.env.REACT_APP_EXAMPLE_SITE}/pages/${project.projectId}/${project.rootFile}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Deployed Site
-              </a>
+              {project.rootFile && (
+                <a
+                  href={`${process.env.REACT_APP_EXAMPLE_SITE}/pages/${project.rootFile}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Deployed Site
+                </a>
+              )}
             </li>
           ))}
         </ul>
