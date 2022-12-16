@@ -39,12 +39,21 @@ export async function listFiles(query: string) {
   return drive.files.list({ q: query, auth, pageSize: 10 });
 }
 
+export async function getFile(fileId: string) {
+  const drive = google.drive('v3');
+  const auth = await getOauth2Client();
+  return drive.files.get({ fileId, auth });
+}
+
 export async function listFoldersAndDocs(driveFileId: string) {
   const response = await listFiles(`parents in '${driveFileId}'`);
-
   const { files } = response.data;
-  if (!files) {
-    return { folders: [], docs: [] };
+  if (!files || files.length === 0) {
+    const response = await getFile(driveFileId);
+    if (!response.data) {
+      return { folders: [], docs: [] };
+    }
+    return { folders: [], docs: [response.data] };
   }
 
   const folders = files.filter((file) => file.mimeType === FOLDER_MIME_TYPE);

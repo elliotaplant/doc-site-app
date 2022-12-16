@@ -27,6 +27,7 @@ const handler: Handler = async (event) => {
   try {
     const seen = new Set();
     const queue = [{ rootFolderId: project.rootFileId, path: [projectId] }];
+    console.log('queue', queue);
     const docsToSave: { docFile: drive_v3.Schema$File; path: string[] }[] = [];
     while (queue.length) {
       const currentFile = queue.pop();
@@ -39,6 +40,7 @@ const handler: Handler = async (event) => {
       );
 
       const { folders, docs } = await listFoldersAndDocs(currentFile.rootFolderId);
+      console.log('docs', docs);
 
       queue.unshift(
         ...folders.map(({ id, name }) => ({
@@ -48,14 +50,24 @@ const handler: Handler = async (event) => {
       );
 
       docsToSave.push(...docs.map((docFile) => ({ docFile, path: currentFile.path })));
+
+      // Single page sites only have one file so listFoldersAndDocs returns nothing
+      if (docs.length === 0 && folders.length === 0) {
+        docsToSave.push({
+          docFile: { id: project.rootFileId },
+          path: currentFile.path,
+        });
+      }
     }
     const savedFiles = await Promise.all(
       docsToSave.map(({ docFile, path }) => saveFile(docFile, path))
     );
 
+    console.log('savedFiles', savedFiles);
     const updatedProjects = projects.map((project) =>
       project.projectId === projectId ? { ...project, rootFile: savedFiles[0] } : project
     );
+    console.log('updatedProjects', updatedProjects);
     const requestBody = JSON.stringify(updatedProjects);
     const response = await fetchBackend(`/projects?userId=${USER_ID}`, {
       method: 'POST',
