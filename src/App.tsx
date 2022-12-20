@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import './App.css';
+import { GooglePickerButton } from './GooglePickerButton';
 
 const driveFolderRoot = 'https://drive.google.com/drive/folders';
 
@@ -85,6 +86,7 @@ function App() {
       <button style={{ width: 100 }} onClick={connectGoogleDrive}>
         Connect to Google Drive
       </button>
+      <GooglePickerButton />
       <form onSubmit={createProject} style={{ display: 'flex', gap: '10px' }}>
         <input
           value={projectIdToCreate}
