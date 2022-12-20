@@ -2125,16 +2125,6 @@
     "@types/qs" "*"
     "@types/serve-static" "*"
 
-"@types/gapi@*":
-  version "0.0.43"
-  resolved "https://registry.yarnpkg.com/@types/gapi/-/gapi-0.0.43.tgz#5291ae831006240e3484bdef3fff8dd69baf5947"
-  integrity sha512-GbnoTC1psXR1XlBE76LW0eanE/a56iGUzbUOImEI8/xXHuppdbhhIKX9Z71mTut2XoFADh58PgfRg1cyD7TnTw==
-
-"@types/google.picker@*":
-  version "0.0.39"
-  resolved "https://registry.yarnpkg.com/@types/google.picker/-/google.picker-0.0.39.tgz#bb205ffb9736e8ec4a1af7cc87811d0fc5dc30fa"
-  integrity sha512-VnyuwmxPkipUPlTA6PmUeeIne7pSYSlq1xqoiyBCSTs47efEMhIlYaYHrzqW0DIvRa8HnkCDI40ltFzgke846Q==
-
 "@types/graceful-fs@^4.1.2":
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/@types/graceful-fs/-/graceful-fs-4.1.5.tgz#21ffba0d98da4350db64891f92a9e5db3cdb4e15"
@@ -2249,15 +2239,6 @@
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-18.0.9.tgz#ffee5e4bfc2a2f8774b15496474f8e7fe8d0b504"
   integrity sha512-qnVvHxASt/H7i+XG1U1xMiY5t+IHcPGUK7TDMDzom08xa7e86eCeKOiLZezwCKVxJn6NEiiy2ekgX8aQssjIKg==
   dependencies:
-    "@types/react" "*"
-
-"@types/react-google-picker@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@types/react-google-picker/-/react-google-picker-0.1.0.tgz#4e81b5c7e1db5887cbf347afad0c3a0dfa57d512"
-  integrity sha512-2AhDXBOYZEPiFfxUKjgRyfjZpibpCmV6nF8nUro4oHET8aSrRK8jT+YS4JZ1ceetd9AbgNaQVjjIDuAoNZXckw==
-  dependencies:
-    "@types/gapi" "*"
-    "@types/google.picker" "*"
     "@types/react" "*"
 
 "@types/react@*", "@types/react@^18.0.0":
@@ -6945,11 +6926,6 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.2.4.tgz#eca284f75d2965079309dc0ad9255abb2ebc1632"
   integrity sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==
 
-load-script@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/load-script/-/load-script-1.0.0.tgz#0491939e0bee5643ee494a7e3da3d2bac70c6ca4"
-  integrity sha512-kPEjMFtZvwL9TaZo0uZ2ml+Ye9HUMmPwbYRJ324qF9tqMejwykJ5ggTyvzmrbBeapCAbk98BSbTeovHEEP1uCA==
-
 loader-runner@^4.2.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/loader-runner/-/loader-runner-4.3.0.tgz#c1b4a163b99f614830353b16755e7149ac2314e1"
@@ -8842,18 +8818,6 @@ react-error-overlay@^6.0.11:
   version "6.0.11"
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.11.tgz#92835de5841c5cf08ba00ddd2d677b6d17ff9adb"
   integrity sha512-/6UZ2qgEyH2aqzYZgQPxEnz33NJ2gNsnHA2o5+o4wW9bLM/JYQitNP9xPhsXwC08hMMovfGe/8retsdDsczPRg==
-
-react-google-drive-picker@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/react-google-drive-picker/-/react-google-drive-picker-1.2.0.tgz#b3e23b10c2248729da8730e9e5c67e350c6bb22f"
-  integrity sha512-2CmaPLZP+8WkfT/J1xzNMWS99/SHphUk7wzw4/47uvNK4T+YYL7bYGHdwjJ4WMMCj4F0YCM9rDRc2enXqnP/TA==
-
-react-google-picker@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/react-google-picker/-/react-google-picker-0.1.0.tgz#f8a5a3ff7f48c99d1be35071f28a17d136ec0953"
-  integrity sha512-0y3TtinsdNwEx77Upsmh7Q4bXuBt/d/KntQDNxLOIf2v77UQQi0FBYAtAkjrkP28IOX7gfcXhdY5XXZRGHSODw==
-  dependencies:
-    load-script "^1.0.0"
 
 react-is@^16.13.1:
   version "16.13.1"
