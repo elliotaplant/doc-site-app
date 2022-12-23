@@ -1,6 +1,6 @@
 import { Handler } from '@netlify/functions';
-import { google } from 'googleapis';
 import { fetchBackend } from '../backend';
+import { createOAuth2Client } from '../drive';
 
 const handler: Handler = async (event, context) => {
   const code: string | undefined = event.queryStringParameters?.code;
@@ -16,11 +16,7 @@ const handler: Handler = async (event, context) => {
    * from the client_secret.json file. To get these credentials for your application, visit
    * https://console.cloud.google.com/apis/credentials.
    */
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URL
-  );
+  const oauth2Client = createOAuth2Client();
 
   const { tokens } = await oauth2Client.getToken(code);
   oauth2Client.setCredentials(tokens);

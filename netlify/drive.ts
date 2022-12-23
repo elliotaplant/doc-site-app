@@ -5,16 +5,24 @@ import { streamToBuffer } from './format-page';
 import AdmZip from 'adm-zip';
 import { DOC_MIME_TYPE, FOLDER_MIME_TYPE } from './constants';
 
+export function createOAuth2Client() {
+  return new google.auth.OAuth2(
+    process.env.REACT_APP_CLIENT_ID,
+    process.env.CLIENT_SECRET,
+    process.env.REDIRECT_URL
+  );
+}
+
 async function getOauth2Client() {
   const tokensResponse = await fetchBackend('/drive-tokens');
   const tokens: Credentials = (await tokensResponse.json()) as any;
 
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URL
-  );
+  const oauth2Client = createOAuth2Client();
+  oauth2Client.setCredentials(tokens);
 
+  // Refresh the access token, if necessary
+  const { token } = await oauth2Client.getAccessToken();
+  tokens.access_token = token;
   oauth2Client.setCredentials(tokens);
 
   return oauth2Client;

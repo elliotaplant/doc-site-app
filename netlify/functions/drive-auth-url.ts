@@ -1,17 +1,8 @@
 import { Handler } from '@netlify/functions';
-import { google } from 'googleapis';
+import { createOAuth2Client } from '../drive';
 
 const handler: Handler = async () => {
-  /**
-   * To use OAuth2 authentication, we need access to a CLIENT_ID, CLIENT_SECRET, AND REDIRECT_URI
-   * from the client_secret.json file. To get these credentials for your application, visit
-   * https://console.cloud.google.com/apis/credentials.
-   */
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URL
-  );
+  const oauth2Client = createOAuth2Client();
 
   // Access scopes for read-only Drive activity.
   const scopes = ['https://www.googleapis.com/auth/drive.readonly'];
