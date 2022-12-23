@@ -86,7 +86,7 @@ function App() {
       <button style={{ width: 100 }} onClick={connectGoogleDrive}>
         Connect to Google Drive
       </button>
-      <GooglePickerButton />
+      <GooglePickerButton onSelected={setDriveId} />
       <form onSubmit={createProject} style={{ display: 'flex', gap: '10px' }}>
         <input
           value={projectIdToCreate}

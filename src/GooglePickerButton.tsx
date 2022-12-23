@@ -1,6 +1,10 @@
 import useDrivePicker from './picker/picker';
 
-export function GooglePickerButton() {
+interface GooglePickerButtonProps {
+  onSelected: (googleDriveID: string) => void;
+}
+
+export function GooglePickerButton({ onSelected }: GooglePickerButtonProps) {
   const [openPicker] = useDrivePicker();
   // const customViewsArray = [new google.picker.DocsView()]; // custom view
   const handleOpenPicker = () => {
@@ -16,11 +20,10 @@ export function GooglePickerButton() {
       supportDrives: true,
       multiselect: false,
       // customViews: customViewsArray, // custom view
-      callbackFunction: (data) => {
-        if (data.action === 'cancel') {
-          console.log('User clicked cancel/close button');
+      callbackFunction: ({ action, docs }) => {
+        if (action === 'picked' && docs.length === 1 && docs[0].id) {
+          onSelected(docs[0].id);
         }
-        console.log(data);
       },
     });
   };
