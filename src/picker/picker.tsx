@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { authResult, defaultConfiguration, PickerConfiguration } from './typeDefs';
 import useInjectScript from './useInjectScript';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+// Values injected into scope by google scripts
 declare let google: any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let window: any;
 
 export default function useDrivePicker(): [
@@ -18,17 +18,75 @@ export default function useDrivePicker(): [
   const [config, setConfig] = useState<PickerConfiguration>(defaultConfiguration);
   const [authRes, setAuthRes] = useState<authResult>();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let picker: any;
+  const createPicker = useCallback(
+    ({
+      token,
+      appId = '',
+      supportDrives = false,
+      developerKey,
+      viewId = 'DOCS',
+      disabled,
+      multiselect,
+      showUploadView = false,
+      showUploadFolders,
+      setParentFolder = '',
+      viewMimeTypes,
+      customViews,
+      locale = 'en',
+      setIncludeFolders,
+      setSelectFolderEnabled,
+      disableDefaultView = false,
+      callbackFunction,
+    }: PickerConfiguration) => {
+      if (disabled) return false;
+
+      const view = new google.picker.DocsView(google.picker.ViewId[viewId]);
+      if (viewMimeTypes) view.setMimeTypes(viewMimeTypes);
+      if (setIncludeFolders) view.setIncludeFolders(true);
+      if (setSelectFolderEnabled) view.setSelectFolderEnabled(true);
+
+      const uploadView = new google.picker.DocsUploadView();
+      if (viewMimeTypes) uploadView.setMimeTypes(viewMimeTypes);
+      if (showUploadFolders) uploadView.setIncludeFolders(true);
+      if (setParentFolder) uploadView.setParent(setParentFolder);
+
+      const picker = new google.picker.PickerBuilder()
+        .setAppId(appId)
+        .setOAuthToken(token)
+        .setDeveloperKey(developerKey)
+        .setLocale(locale)
+        .setCallback(callbackFunction);
+
+      if (!disableDefaultView) {
+        picker.addView(view);
+      }
+
+      if (customViews) {
+        customViews.map((view) => picker.addView(view));
+      }
+
+      if (multiselect) {
+        picker.enableFeature(google.picker.Feature.MULTISELECT_ENABLED);
+      }
+
+      if (showUploadView) picker.addView(uploadView);
+
+      if (supportDrives) {
+        picker.enableFeature(google.picker.Feature.SUPPORT_DRIVES);
+      }
+
+      picker.build().setVisible(true);
+      return true;
+    },
+    []
+  );
 
   // get the apis from googleapis
   useEffect(() => {
     if (loaded && !error && loadedGsi && !errorGsi && !pickerApiLoaded) {
       // load the Drive picker api
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       window.gapi.load('auth');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      window.gapi.load('picker', { callback: onPickerApiLoad });
+      window.gapi.load('picker', { callback: () => setPickerApiLoaded(true) });
     }
   }, [loaded, error, loadedGsi, errorGsi, pickerApiLoaded]);
 
@@ -46,14 +104,14 @@ export default function useDrivePicker(): [
       createPicker(config);
       setOpenAfterAuth(false);
     }
-  }, [openAfterAuth, config.token, loaded, error, loadedGsi, errorGsi, pickerApiLoaded]);
+  }, [openAfterAuth, config, loaded, error, loadedGsi, errorGsi, pickerApiLoaded, createPicker]);
 
   // open the picker
   const openPicker = (config: PickerConfiguration) => {
     // global scope given conf
     setConfig(config);
 
-    // if we didnt get token generate token.
+    // if we didn't get token generate token.
     if (!config.token) {
       const client = google.accounts.oauth2.initTokenClient({
         client_id: config.clientId,
@@ -74,70 +132,6 @@ export default function useDrivePicker(): [
     if (config.token && loaded && !error && pickerApiLoaded) {
       return createPicker(config);
     }
-  };
-
-  const onPickerApiLoad = () => {
-    setPickerApiLoaded(true);
-  };
-
-  const createPicker = ({
-    token,
-    appId = '',
-    supportDrives = false,
-    developerKey,
-    viewId = 'DOCS',
-    disabled,
-    multiselect,
-    showUploadView = false,
-    showUploadFolders,
-    setParentFolder = '',
-    viewMimeTypes,
-    customViews,
-    locale = 'en',
-    setIncludeFolders,
-    setSelectFolderEnabled,
-    disableDefaultView = false,
-    callbackFunction,
-  }: PickerConfiguration) => {
-    if (disabled) return false;
-
-    const view = new google.picker.DocsView(google.picker.ViewId[viewId]);
-    if (viewMimeTypes) view.setMimeTypes(viewMimeTypes);
-    if (setIncludeFolders) view.setIncludeFolders(true);
-    if (setSelectFolderEnabled) view.setSelectFolderEnabled(true);
-
-    const uploadView = new google.picker.DocsUploadView();
-    if (viewMimeTypes) uploadView.setMimeTypes(viewMimeTypes);
-    if (showUploadFolders) uploadView.setIncludeFolders(true);
-    if (setParentFolder) uploadView.setParent(setParentFolder);
-
-    picker = new google.picker.PickerBuilder()
-      .setAppId(appId)
-      .setOAuthToken(token)
-      .setDeveloperKey(developerKey)
-      .setLocale(locale)
-      .setCallback(callbackFunction);
-
-    if (!disableDefaultView) {
-      picker.addView(view);
-    }
-
-    if (customViews) {
-      customViews.map((view) => picker.addView(view));
-    }
-
-    if (multiselect) {
-      picker.enableFeature(google.picker.Feature.MULTISELECT_ENABLED);
-    }
-
-    if (showUploadView) picker.addView(uploadView);
-
-    if (supportDrives) {
-      picker.enableFeature(google.picker.Feature.SUPPORT_DRIVES);
-    }
-
-    picker.build().setVisible(true);
-    return true;
   };
 
   return [openPicker, authRes];
