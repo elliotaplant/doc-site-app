@@ -6,6 +6,7 @@ import { USER_ID } from '../constants';
 import { exportDoc, listFoldersAndDocs } from '../drive';
 import { formatPage } from '../format-page';
 import { serializeName } from '../naming';
+import { Project } from '../types';
 
 const handler: Handler = async (event) => {
   if (!event.body) {
@@ -18,7 +19,7 @@ const handler: Handler = async (event) => {
   }
 
   const projectsResponse = await fetchBackend(`/projects?userId=${USER_ID}`);
-  const projects: any = await projectsResponse.json();
+  const projects: Project[] = (await projectsResponse.json()) as any;
   const project = projects?.find((project) => project.projectId === projectId);
   if (!project) {
     return { statusCode: 404, body: 'Project not found' };
