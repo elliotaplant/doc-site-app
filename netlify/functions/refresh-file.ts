@@ -1,6 +1,4 @@
 import { Handler } from '@netlify/functions';
-import AdmZip from 'adm-zip';
-import { drive_v3 } from 'googleapis';
 import { fetchBackend, savePage } from '../backend';
 import { USER_ID } from '../constants';
 import { exportDoc, listFoldersAndDocs } from '../drive';
