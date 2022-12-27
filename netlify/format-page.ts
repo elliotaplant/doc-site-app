@@ -3,7 +3,8 @@ import { parse, HTMLElement } from 'node-html-parser';
 
 export async function formatPage(
   rawPage: Buffer,
-  imageReplacements: Record<string, string>
+  imageReplacements: Record<string, string>,
+  linkReplacements: Record<string, string>
 ) {
   const pageAsString = rawPage.toString('utf8');
   const root = parse(pageAsString);
@@ -38,14 +39,16 @@ export async function formatPage(
       .forEach((img) => img.setAttribute('src', newSrc));
   }
 
+  for (const [driveFileId, newHref] of Object.entries(linkReplacements)) {
+    root
+      .querySelectorAll(`a[href*="${driveFileId}"]`)
+      .forEach((anchor) => anchor.setAttribute('href', newHref));
+  }
+
   return root.toString();
 }
 
-function element(
-  tagName: string,
-  attrs: { [key: string]: string },
-  contents?: string
-) {
+function element(tagName: string, attrs: { [key: string]: string }, contents?: string) {
   const element = new HTMLElement(
     tagName,
     {},
