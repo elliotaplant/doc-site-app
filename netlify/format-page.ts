@@ -1,6 +1,8 @@
 import { Readable } from 'stream';
 import { parse, HTMLElement } from 'node-html-parser';
 
+const GOOGLE_URL_MASK_REGEX = /https:\/\/www\.google\.com\/url\?q=(.*)&sa.*/;
+
 export async function formatPage(
   rawPage: Buffer,
   imageReplacements: Record<string, string>,
@@ -44,6 +46,13 @@ export async function formatPage(
       .querySelectorAll(`a[href*="${driveFileId}"]`)
       .forEach((anchor) => anchor.setAttribute('href', newHref));
   }
+
+  root.querySelectorAll(`a[href*=https://www.google.com/url?q=]`).forEach((anchor) => {
+    const regexResult = anchor.getAttribute('href')?.match(GOOGLE_URL_MASK_REGEX);
+    if (regexResult) {
+      anchor.setAttribute('href', decodeURIComponent(regexResult[1]));
+    }
+  });
 
   return root.toString();
 }
