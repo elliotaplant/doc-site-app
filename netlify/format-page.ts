@@ -1,9 +1,12 @@
 import { Readable } from 'stream';
 import { parse, HTMLElement } from 'node-html-parser';
 
+const GOOGLE_URL_MASK_REGEX = /https:\/\/www\.google\.com\/url\?q=(.*)&sa.*/;
+
 export async function formatPage(
   rawPage: Buffer,
-  imageReplacements: Record<string, string>
+  imageReplacements: Record<string, string>,
+  linkReplacements: Record<string, string>
 ) {
   const pageAsString = rawPage.toString('utf8');
   const root = parse(pageAsString);
@@ -38,14 +41,23 @@ export async function formatPage(
       .forEach((img) => img.setAttribute('src', newSrc));
   }
 
+  for (const [driveFileId, newHref] of Object.entries(linkReplacements)) {
+    root
+      .querySelectorAll(`a[href*="${driveFileId}"]`)
+      .forEach((anchor) => anchor.setAttribute('href', newHref));
+  }
+
+  root.querySelectorAll(`a[href*=https://www.google.com/url?q=]`).forEach((anchor) => {
+    const regexResult = anchor.getAttribute('href')?.match(GOOGLE_URL_MASK_REGEX);
+    if (regexResult) {
+      anchor.setAttribute('href', decodeURIComponent(regexResult[1]));
+    }
+  });
+
   return root.toString();
 }
 
-function element(
-  tagName: string,
-  attrs: { [key: string]: string },
-  contents?: string
-) {
+function element(tagName: string, attrs: { [key: string]: string }, contents?: string) {
   const element = new HTMLElement(
     tagName,
     {},
