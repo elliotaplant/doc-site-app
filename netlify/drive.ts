@@ -54,7 +54,7 @@ export async function getFile(fileId: string) {
 }
 
 export async function listFoldersAndDocs(driveFileId: string) {
-  const response = await listFiles(`parents in '${driveFileId}'`);
+  const response = await listFiles(`parents in '${driveFileId}' and trashed=false`);
   const { files } = response.data;
   if (!files || files.length === 0) {
     const response = await getFile(driveFileId);
