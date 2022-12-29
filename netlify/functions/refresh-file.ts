@@ -68,8 +68,13 @@ const handler: Handler = async (event) => {
           path: currentFile.path,
         });
         const { serializedHtmlFileName } = serializePageNaming(doc.name || '');
-        const fullHtmlFilePath = [...currentFile.path, serializedHtmlFileName].join('/');
-        linkReplacements[doc.id || ''] = ['', 'pages', fullHtmlFilePath].join('/');
+        const fileDirectoryPath =
+          process.env.APPEND_SUBDOMAIN_TO_PATH === 'true'
+            ? currentFile.path.slice(1)
+            : currentFile.path;
+
+        const fullHtmlFilePath = [...fileDirectoryPath, serializedHtmlFileName].join('/');
+        linkReplacements[doc.id || ''] = ['', fullHtmlFilePath].join('/');
       }
 
       // Single page sites only have one file so listFoldersAndDocs returns nothing
