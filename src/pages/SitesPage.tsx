@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { GooglePickerButton } from './picker/GooglePickerButton';
+import { Link } from 'react-router-dom';
 
 const driveFolderRoot = 'https://drive.google.com/drive/folders';
 
@@ -101,6 +102,7 @@ export function SitesPage() {
           Create project
         </button>
       </form>
+      <Link to="account">Account</Link>
       {projects && (
         <ul>
           {projects.map((project: any) => (
