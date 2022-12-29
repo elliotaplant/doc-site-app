@@ -116,7 +116,7 @@ function App() {
               </a>
               {project.rootFile && (
                 <a
-                  href={`${process.env.REACT_APP_EXAMPLE_SITE}/pages/${project.rootFile}`}
+                  href={`${process.env.REACT_APP_EXAMPLE_SITE}/${project.rootFile}`}
                   target="_blank"
                   rel="noreferrer"
                 >

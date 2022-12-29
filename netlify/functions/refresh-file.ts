@@ -1,6 +1,4 @@
 import { Handler } from '@netlify/functions';
-import AdmZip from 'adm-zip';
-import { drive_v3 } from 'googleapis';
 import { fetchBackend, savePage } from '../backend';
 import { USER_ID } from '../constants';
 import { exportDoc, listFoldersAndDocs } from '../drive';
@@ -26,9 +24,9 @@ const handler: Handler = async (event) => {
 
   try {
     const seen = new Set();
+    const linkReplacements: Record<string, string> = {};
     const queue = [{ rootFolderId: project.rootFileId, path: [projectId] }];
-    console.log('queue', queue);
-    const docsToSave: { docFile: drive_v3.Schema$File; path: string[] }[] = [];
+    const docsToSave: { driveFileId: string; driveFileName: string; path: string[] }[] = [];
     while (queue.length) {
       const currentFile = queue.pop();
       if (!currentFile || seen.has(currentFile)) {
@@ -42,6 +40,13 @@ const handler: Handler = async (event) => {
       const { folders, docs } = await listFoldersAndDocs(currentFile.rootFolderId);
       console.log('docs', docs);
 
+      const folderWithoutNameOrId = folders.find((folder) => !folder.id || !folder.name);
+      if (folderWithoutNameOrId) {
+        throw new Error(
+          `Encountered drive folder without an id or name: ${JSON.stringify(folderWithoutNameOrId)}`
+        );
+      }
+
       queue.unshift(
         ...folders.map(({ id, name }) => ({
           rootFolderId: id || '',
@@ -49,18 +54,38 @@ const handler: Handler = async (event) => {
         }))
       );
 
-      docsToSave.push(...docs.map((docFile) => ({ docFile, path: currentFile.path })));
+      const docWithoutNameOrId = docs.find((doc) => !doc.id || !doc.name);
+      if (docWithoutNameOrId) {
+        throw new Error(
+          `Encountered drive doc without an id or name: ${JSON.stringify(docWithoutNameOrId)}`
+        );
+      }
+
+      for (const doc of docs) {
+        docsToSave.push({
+          driveFileId: doc.id || '',
+          driveFileName: doc.name || '',
+          path: currentFile.path,
+        });
+        const { serializedHtmlFileName } = serializePageNaming(doc.name || '');
+        const fullHtmlFilePath = [...currentFile.path, serializedHtmlFileName].join('/');
+        linkReplacements[doc.id || ''] = ['', 'pages', fullHtmlFilePath].join('/');
+      }
 
       // Single page sites only have one file so listFoldersAndDocs returns nothing
       if (docs.length === 0 && folders.length === 0) {
         docsToSave.push({
-          docFile: { id: project.rootFileId },
+          driveFileId: project.rootFileId,
+          driveFileName: 'index',
           path: currentFile.path,
         });
       }
     }
+
     const savedFiles = await Promise.all(
-      docsToSave.map(({ docFile, path }) => saveFile(docFile, path))
+      docsToSave.map(({ driveFileId, driveFileName, path }) =>
+        saveFile(driveFileId, driveFileName, path, linkReplacements)
+      )
     );
 
     console.log('savedFiles', savedFiles);
@@ -80,6 +105,7 @@ const handler: Handler = async (event) => {
 
     return { statusCode: 201 };
   } catch (e) {
+    console.error(e);
     return {
       statusCode: 500,
       body: e.toString(),
@@ -87,12 +113,17 @@ const handler: Handler = async (event) => {
   }
 };
 
-async function saveFile(driveFile: drive_v3.Schema$File, path: string[]) {
-  if (!driveFile.id) {
+async function saveFile(
+  driveFileId: string,
+  driveFileName: string,
+  path: string[],
+  linkReplacements: Record<string, string>
+) {
+  if (!driveFileId) {
     throw new Error('Doc file does not have an ID');
   }
 
-  const zip = await exportDoc(driveFile.id);
+  const zip = await exportDoc(driveFileId);
 
   // Find all the image entries and the html file
   const images = zip.getEntries().filter((entry) => entry.entryName.startsWith('images/'));
@@ -103,12 +134,12 @@ async function saveFile(driveFile: drive_v3.Schema$File, path: string[]) {
   }
 
   // Serialize the filename so it's consistent between the url and the storage
-  const { serializedHtmlFileName, serializedPageName } = serializePageNaming(driveFile, htmlFile);
+  const { serializedHtmlFileName, serializedPageName } = serializePageNaming(driveFileName);
 
   console.log(
     'Saving doc',
     JSON.stringify({
-      id: driveFile.id,
+      id: driveFileId,
       path: path.join('/'),
       serializedHtmlFileName,
       images: images.length,
@@ -131,7 +162,7 @@ async function saveFile(driveFile: drive_v3.Schema$File, path: string[]) {
 
   // Format and store the HTML document for the page
   const fullHtmlFilePath = [...path, serializedHtmlFileName].join('/');
-  const formattedPage = await formatPage(htmlFile.getData(), imageReplacements);
+  const formattedPage = await formatPage(htmlFile.getData(), imageReplacements, linkReplacements);
   const resp = await savePage(fullHtmlFilePath, formattedPage);
 
   if (!resp.ok) {
@@ -141,10 +172,8 @@ async function saveFile(driveFile: drive_v3.Schema$File, path: string[]) {
   return fullHtmlFilePath;
 }
 
-function serializePageNaming(driveFile: drive_v3.Schema$File, htmlFile: AdmZip.IZipEntry) {
-  const serializedHtmlFileName = serializeName(
-    driveFile.name ? driveFile.name + '.html' : htmlFile.name
-  );
+function serializePageNaming(driveFileName: string) {
+  const serializedHtmlFileName = serializeName(driveFileName + '.html');
   const serializedPageName = serializedHtmlFileName.slice(
     0,
     serializedHtmlFileName.lastIndexOf('.')
