@@ -1,4 +1,4 @@
-import useDrivePicker from './picker/picker';
+import useDrivePicker from './picker';
 
 interface GooglePickerButtonProps {
   onSelected: (googleDriveID: string) => void;
