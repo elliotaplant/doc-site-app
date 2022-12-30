@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { redirect, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useIdentityContext } from 'react-netlify-identity';
 
 const passwordPattern = /^.{6,}$/;

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { redirect, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { useIdentityContext } from 'react-netlify-identity';
 
@@ -28,18 +28,14 @@ export function LogInPage() {
     event.preventDefault();
     const email = emailInput.current.value;
     const password = passwordInput.current.value;
-    loginUser(email, password, true)
-      .then(() => {
-        redirect('/'); // necessary?
-      })
-      .catch((error) => {
-        if (error?.json?.error_description) {
-          setError(error.json.error_description);
-        } else {
-          setError('Failed to log in');
-        }
-        console.log(error);
-      });
+    loginUser(email, password, true).catch((error) => {
+      if (error?.json?.error_description) {
+        setError(error.json.error_description);
+      } else {
+        setError('Failed to log in');
+      }
+      console.log(error);
+    });
   };
 
   return (
