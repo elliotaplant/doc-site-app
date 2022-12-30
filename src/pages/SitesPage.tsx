@@ -25,8 +25,7 @@ export function SitesPage() {
   }, [setProjects, authedFetch]);
 
   const connectGoogleDrive = async () => {
-    const response = await fetch('/.netlify/functions/drive-auth-url');
-    const { url } = await response.json();
+    const { url } = await authedFetch.get('/.netlify/functions/drive-auth-url');
     console.log('url', url);
     window.open(url);
   };

@@ -1,7 +1,13 @@
 import { Handler } from '@netlify/functions';
 import { createOAuth2Client } from '../drive';
 
-const handler: Handler = async () => {
+const handler: Handler = async (event, context) => {
+  const sub = context.clientContext?.user?.sub;
+
+  if (!sub) {
+    return { statusCode: 403, body: 'Unauthorized' };
+  }
+
   const oauth2Client = createOAuth2Client();
 
   // Access scopes for read-only Drive activity.
@@ -20,6 +26,7 @@ const handler: Handler = async () => {
     // This is only necessary because I use the same account and client_id in dev and prod.
     // If either of those changes between envs, we could remove this
     prompt: 'consent',
+    state: sub,
   });
 
   return {
