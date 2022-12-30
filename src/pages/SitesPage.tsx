@@ -33,8 +33,7 @@ export function SitesPage() {
 
   const refreshFile = async (projectId: string) => {
     try {
-      const resp = await fetch('/.netlify/functions/refresh-file', {
-        method: 'post',
+      const resp = await authedFetch.post('/.netlify/functions/refresh-file', {
         body: JSON.stringify({ projectId }),
         headers: {
           'content-type': 'application/json',
@@ -52,8 +51,7 @@ export function SitesPage() {
   const createProject = async (e: FormEvent) => {
     try {
       e.preventDefault();
-      const resp = await fetch('/.netlify/functions/project', {
-        method: 'post',
+      await authedFetch.post('/.netlify/functions/project', {
         body: JSON.stringify({
           projectId: projectIdToCreate,
           rootFileId: driveId,
@@ -62,10 +60,6 @@ export function SitesPage() {
           'content-type': 'application/json',
         },
       });
-      console.log('resp.status', resp.status);
-      if (!resp.ok) {
-        throw new Error(await resp.text());
-      }
 
       setDriveId('');
       setProjectIdToCreate('');
