@@ -1,9 +1,16 @@
 import { Handler } from '@netlify/functions';
 import { fetchBackend } from '../backend';
-import { USER_ID } from '../constants';
+import { getUserId } from '../identity';
 
 const handler: Handler = async (event, context) => {
-  const response = await fetchBackend(`/projects?userId=${USER_ID}`);
+  console.log('context.clientContext', context.clientContext);
+  const id = getUserId(context.clientContext);
+
+  if (!id) {
+    return { statusCode: 403, body: 'Unauthorized' };
+  }
+
+  const response = await fetchBackend(`/projects?userId=${sub}`);
   const body = await response.text();
 
   // Return the existing projects

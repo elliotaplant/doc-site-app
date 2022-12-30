@@ -13,7 +13,12 @@ export function SitesPage() {
     let unmounted = false;
 
     fetch('/.netlify/functions/project')
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error(`Request failed: ${response.status}`);
+      })
       .then((projects) => unmounted || setProjects(projects))
       .catch(console.error);
 
