@@ -75,7 +75,7 @@ const handler: Handler = async (event, context) => {
         const fileDirectoryPath =
           process.env.REACT_APP_APPEND_SUBDOMAIN_TO_PATH === 'true'
             ? currentFile.path.slice(1)
-            : currentFile.path;
+            : [projectId, ...currentFile.path];
 
         const fullHtmlFilePath = [...fileDirectoryPath, serializedHtmlFileName].join('/');
         linkReplacements[doc.id || ''] = ['', fullHtmlFilePath].join('/');
