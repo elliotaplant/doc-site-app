@@ -29,7 +29,7 @@ const handler: Handler = async (event, context) => {
   try {
     const seen = new Set();
     const linkReplacements: Record<string, string> = {};
-    const queue = [{ rootFolderId: project.rootFileId, path: [projectId] }];
+    const queue = [{ rootFolderId: project.rootFileId, path: [] as string[] }];
     const docsToSave: { driveFileId: string; driveFileName: string; path: string[] }[] = [];
     while (queue.length) {
       const currentFile = queue.pop();
@@ -73,7 +73,7 @@ const handler: Handler = async (event, context) => {
         });
         const { serializedHtmlFileName } = serializePageNaming(doc.name || '');
         const fileDirectoryPath =
-          process.env.APPEND_SUBDOMAIN_TO_PATH === 'true'
+          process.env.REACT_APP_APPEND_SUBDOMAIN_TO_PATH === 'true'
             ? currentFile.path.slice(1)
             : currentFile.path;
 
@@ -93,7 +93,7 @@ const handler: Handler = async (event, context) => {
 
     const savedFiles = await Promise.all(
       docsToSave.map(({ driveFileId, driveFileName, path }) =>
-        saveFile(driveFileId, driveFileName, path, linkReplacements, sub)
+        saveFile(projectId, driveFileId, driveFileName, path, linkReplacements, sub)
       )
     );
 
@@ -123,6 +123,7 @@ const handler: Handler = async (event, context) => {
 };
 
 async function saveFile(
+  projectId: string,
   driveFileId: string,
   driveFileName: string,
   path: string[],
@@ -171,15 +172,16 @@ async function saveFile(
   }
 
   // Format and store the HTML document for the page
-  const fullHtmlFilePath = [...path, serializedHtmlFileName].join('/');
+  const htmlFilePathWithoutProject = [...path, serializedHtmlFileName].join('/');
+  const htmlFilePathWithProject = [projectId, htmlFilePathWithoutProject].join('/');
   const formattedPage = await formatPage(htmlFile.getData(), imageReplacements, linkReplacements);
-  const resp = await savePage(fullHtmlFilePath, formattedPage, sub);
+  const resp = await savePage(htmlFilePathWithProject, formattedPage, sub);
 
   if (!resp.ok) {
     throw new Error(`Page save error: ${resp.statusText}`);
   }
 
-  return fullHtmlFilePath;
+  return htmlFilePathWithoutProject;
 }
 
 function serializePageNaming(driveFileName: string) {

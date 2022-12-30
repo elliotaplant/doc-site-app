@@ -5,6 +5,13 @@ import { useIdentityContext } from 'react-netlify-identity';
 
 const driveFolderRoot = 'https://drive.google.com/drive/folders';
 
+function makeRootUrl(project: any) {
+  if (process.env.REACT_APP_APPEND_SUBDOMAIN_TO_PATH) {
+    return `https://${project.projectId}.${process.env.REACT_APP_EXAMPLE_SITE}/${project.rootFile}`;
+  }
+  return `${process.env.REACT_APP_EXAMPLE_SITE}/${project.projectId}/${project.rootFile}`;
+}
+
 export function SitesPage() {
   const [projects, setProjects] = useState<any>(null);
   const [driveId, setDriveId] = useState('');
@@ -108,11 +115,7 @@ export function SitesPage() {
                 Edit doc
               </a>
               {project.rootFile && (
-                <a
-                  href={`${process.env.REACT_APP_EXAMPLE_SITE}/${project.rootFile}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <a href={makeRootUrl(project)} target="_blank" rel="noreferrer">
                   Deployed Site
                 </a>
               )}
