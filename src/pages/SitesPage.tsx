@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { GooglePickerButton } from './picker/GooglePickerButton';
 import { Link } from 'react-router-dom';
+import { useIdentityContext } from 'react-netlify-identity';
 
 const driveFolderRoot = 'https://drive.google.com/drive/folders';
 
@@ -8,24 +9,20 @@ export function SitesPage() {
   const [projects, setProjects] = useState<any>(null);
   const [driveId, setDriveId] = useState('');
   const [projectIdToCreate, setProjectIdToCreate] = useState('');
+  const { authedFetch } = useIdentityContext();
 
   useEffect(() => {
     let unmounted = false;
 
-    fetch('/.netlify/functions/project')
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error(`Request failed: ${response.status}`);
-      })
+    authedFetch
+      .get('/.netlify/functions/project')
       .then((projects) => unmounted || setProjects(projects))
       .catch(console.error);
 
     return () => {
       unmounted = true;
     };
-  }, [setProjects]);
+  }, [setProjects, authedFetch]);
 
   const connectGoogleDrive = async () => {
     const response = await fetch('/.netlify/functions/drive-auth-url');

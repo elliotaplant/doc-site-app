@@ -1,21 +1,25 @@
 import { Handler } from '@netlify/functions';
 import { fetchBackend, savePage } from '../backend';
-import { USER_ID } from '../constants';
 import { exportDoc, listFoldersAndDocs } from '../drive';
 import { formatPage } from '../format-page';
 import { serializeName } from '../naming';
 
-const handler: Handler = async (event) => {
+const handler: Handler = async (event, context) => {
+  const sub = context.clientContext?.user?.sub;
+  if (!sub) {
+    return { statusCode: 403, body: 'Unauthorized' };
+  }
+
   if (!event.body) {
     throw new Error('No project ID provided');
   }
   const parsedBody = JSON.parse(event.body);
   const projectId: string = parsedBody.projectId;
   if (!projectId) {
-    throw new Error('No project ID provided');
+    return { statusCode: 400, body: 'No project ID provided' };
   }
 
-  const projectsResponse = await fetchBackend(`/projects?userId=${USER_ID}`);
+  const projectsResponse = await fetchBackend(`/projects?userId=${sub}`);
   const projects: any = await projectsResponse.json();
   const project = projects?.find((project) => project.projectId === projectId);
   if (!project) {
@@ -99,7 +103,7 @@ const handler: Handler = async (event) => {
     );
     console.log('updatedProjects', updatedProjects);
     const requestBody = JSON.stringify(updatedProjects);
-    const response = await fetchBackend(`/projects?userId=${USER_ID}`, {
+    const response = await fetchBackend(`/projects?userId=${sub}`, {
       method: 'POST',
       body: requestBody,
     });
