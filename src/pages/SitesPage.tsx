@@ -35,9 +35,10 @@ export function SitesPage() {
       const resp = await authedFetch.post('/.netlify/functions/refresh-file', {
         body: JSON.stringify({ projectId }),
       });
-      if (!resp.ok) {
-        throw new Error(await resp.text());
+      if (resp?.ok === false) {
+        throw new Error(resp);
       }
+      setProjects(resp);
       alert('Success');
     } catch (e) {
       alert(e);

@@ -41,7 +41,7 @@ const handler: Handler = async (event, context) => {
         JSON.stringify({ rootFolderId: currentFile.rootFolderId, path: currentFile.path.join('/') })
       );
 
-      const { folders, docs } = await listFoldersAndDocs(currentFile.rootFolderId);
+      const { folders, docs } = await listFoldersAndDocs(currentFile.rootFolderId, sub);
       console.log('docs', docs);
 
       const folderWithoutNameOrId = folders.find((folder) => !folder.id || !folder.name);
@@ -93,7 +93,7 @@ const handler: Handler = async (event, context) => {
 
     const savedFiles = await Promise.all(
       docsToSave.map(({ driveFileId, driveFileName, path }) =>
-        saveFile(driveFileId, driveFileName, path, linkReplacements)
+        saveFile(driveFileId, driveFileName, path, linkReplacements, sub)
       )
     );
 
@@ -112,7 +112,7 @@ const handler: Handler = async (event, context) => {
       return { statusCode: 500, body: 'Unable to save rootFile' };
     }
 
-    return { statusCode: 201 };
+    return { statusCode: 201, body: requestBody };
   } catch (e) {
     console.error(e);
     return {
@@ -126,13 +126,14 @@ async function saveFile(
   driveFileId: string,
   driveFileName: string,
   path: string[],
-  linkReplacements: Record<string, string>
+  linkReplacements: Record<string, string>,
+  sub: string
 ) {
   if (!driveFileId) {
     throw new Error('Doc file does not have an ID');
   }
 
-  const zip = await exportDoc(driveFileId);
+  const zip = await exportDoc(driveFileId, sub);
 
   // Find all the image entries and the html file
   const images = zip.getEntries().filter((entry) => entry.entryName.startsWith('images/'));
@@ -162,7 +163,7 @@ async function saveFile(
 
     imageReplacements[imageEntry.entryName] = filepath;
 
-    const resp = await savePage([...path, filepath].join('/'), imageEntry.getData());
+    const resp = await savePage([...path, filepath].join('/'), imageEntry.getData(), sub);
 
     if (!resp.ok) {
       throw new Error(`Unable to save ${filepath}: ${resp.statusText}`);
@@ -172,7 +173,7 @@ async function saveFile(
   // Format and store the HTML document for the page
   const fullHtmlFilePath = [...path, serializedHtmlFileName].join('/');
   const formattedPage = await formatPage(htmlFile.getData(), imageReplacements, linkReplacements);
-  const resp = await savePage(fullHtmlFilePath, formattedPage);
+  const resp = await savePage(fullHtmlFilePath, formattedPage, sub);
 
   if (!resp.ok) {
     throw new Error(`Page save error: ${resp.statusText}`);
@@ -182,11 +183,8 @@ async function saveFile(
 }
 
 function serializePageNaming(driveFileName: string) {
-  const serializedHtmlFileName = serializeName(driveFileName + '.html');
-  const serializedPageName = serializedHtmlFileName.slice(
-    0,
-    serializedHtmlFileName.lastIndexOf('.')
-  );
+  const serializedPageName = serializeName(driveFileName);
+  const serializedHtmlFileName = serializedPageName + '.html';
 
   return { serializedHtmlFileName, serializedPageName };
 }

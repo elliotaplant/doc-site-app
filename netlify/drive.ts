@@ -13,8 +13,8 @@ export function createOAuth2Client() {
   );
 }
 
-async function getOauth2Client() {
-  const tokensResponse = await fetchBackend('/drive-tokens');
+async function getOauth2Client(sub: string) {
+  const tokensResponse = await fetchBackend(`/drive-tokens?userId=${sub}`);
   const tokens: Credentials = (await tokensResponse.json()) as any;
 
   const oauth2Client = createOAuth2Client();
@@ -28,9 +28,9 @@ async function getOauth2Client() {
   return oauth2Client;
 }
 
-export async function exportDoc(fileId: string) {
+export async function exportDoc(fileId: string, sub: string) {
   const drive = google.drive('v3');
-  const auth = await getOauth2Client();
+  const auth = await getOauth2Client(sub);
   const response = await drive.files.export(
     { auth, fileId, mimeType: 'application/zip' },
     { responseType: 'stream' }
@@ -41,23 +41,23 @@ export async function exportDoc(fileId: string) {
   return new AdmZip(buf);
 }
 
-export async function listFiles(query: string) {
+export async function listFiles(query: string, sub: string) {
   const drive = google.drive('v3');
-  const auth = await getOauth2Client();
+  const auth = await getOauth2Client(sub);
   return drive.files.list({ q: query, auth, pageSize: 10 });
 }
 
-export async function getFile(fileId: string) {
+export async function getFile(fileId: string, sub: string) {
   const drive = google.drive('v3');
-  const auth = await getOauth2Client();
+  const auth = await getOauth2Client(sub);
   return drive.files.get({ fileId, auth });
 }
 
-export async function listFoldersAndDocs(driveFileId: string) {
-  const response = await listFiles(`parents in '${driveFileId}' and trashed=false`);
+export async function listFoldersAndDocs(driveFileId: string, sub: string) {
+  const response = await listFiles(`parents in '${driveFileId}' and trashed=false`, sub);
   const { files } = response.data;
   if (!files || files.length === 0) {
-    const response = await getFile(driveFileId);
+    const response = await getFile(driveFileId, sub);
     if (!response.data) {
       return { folders: [], docs: [] };
     }
