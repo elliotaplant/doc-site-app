@@ -31,9 +31,6 @@ export function CreateAccountPage() {
     const password = passwordInput.current.value;
     signupUser(email, password, {})
       .then(() => loginUser(email, password, true))
-      .then(() => {
-        redirect('/'); // necessary?
-      })
       .catch((error) => {
         setError(true);
         console.log(error);

@@ -35,7 +35,7 @@ export function PageRoutes() {
   }
 
   if (!isConfirmedUser) {
-    <UnconfirmedEmailPage />;
+    return <UnconfirmedEmailPage />;
   }
 
   return (

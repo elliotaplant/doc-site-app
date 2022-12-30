@@ -5,7 +5,7 @@ import { useIdentityContext } from 'react-netlify-identity';
 
 export function LogInPage() {
   const { loginUser } = useIdentityContext();
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
   const emailInput = useRef<HTMLInputElement>(null!);
   const passwordInput = useRef<HTMLInputElement>(null!);
   const logInButton = useRef<HTMLButtonElement>(null!);
@@ -33,7 +33,11 @@ export function LogInPage() {
         redirect('/'); // necessary?
       })
       .catch((error) => {
-        setError(true);
+        if (error?.json?.error_description) {
+          setError(error.json.error_description);
+        } else {
+          setError('Failed to log in');
+        }
         console.log(error);
       });
   };
@@ -70,9 +74,7 @@ export function LogInPage() {
           ref={passwordInput}
           onChange={handleChange}
         />
-        {error ? (
-          <p>The email and/or password seems to be incorrect. Please check it and try again.</p>
-        ) : null}
+        {error ? <p>{error}</p> : null}
         <button type="submit" ref={logInButton}>
           Log in
         </button>

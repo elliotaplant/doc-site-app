@@ -2,6 +2,7 @@ import { useIdentityContext } from 'react-netlify-identity';
 
 export function UnconfirmedEmailPage() {
   const { user } = useIdentityContext();
+
   return (
     <div
       style={{
