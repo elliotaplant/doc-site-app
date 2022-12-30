@@ -37,8 +37,7 @@ const handler: Handler = async (event, context) => {
       body: requestBody,
     });
 
-    const responseBody = await response.text();
-    return { statusCode: 201, body: responseBody };
+    return { statusCode: 201, body: JSON.stringify({ response }) };
   }
 
   return { statusCode: 405, body: 'Method not allowed' };

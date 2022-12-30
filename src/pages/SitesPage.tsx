@@ -34,9 +34,6 @@ export function SitesPage() {
     try {
       const resp = await authedFetch.post('/.netlify/functions/refresh-file', {
         body: JSON.stringify({ projectId }),
-        headers: {
-          'content-type': 'application/json',
-        },
       });
       if (!resp.ok) {
         throw new Error(await resp.text());
@@ -50,15 +47,16 @@ export function SitesPage() {
   const createProject = async (e: FormEvent) => {
     try {
       e.preventDefault();
-      await authedFetch.post('/.netlify/functions/project', {
+      const response = await authedFetch.post('/.netlify/functions/project', {
         body: JSON.stringify({
           projectId: projectIdToCreate,
           rootFileId: driveId,
         }),
-        headers: {
-          'content-type': 'application/json',
-        },
       });
+
+      if (response?.ok === false) {
+        throw new Error('Failed to create project');
+      }
 
       setDriveId('');
       setProjectIdToCreate('');
@@ -82,7 +80,7 @@ export function SitesPage() {
         Connect to Google Drive
       </button>
       <GooglePickerButton onSelected={setDriveId} />
-      <form onSubmit={createProject} style={{ display: 'flex', gap: '10px' }}>
+      <form onSubmit={(e) => createProject(e)} style={{ display: 'flex', gap: '10px' }}>
         <input
           value={projectIdToCreate}
           onChange={(e) => setProjectIdToCreate(e.currentTarget.value)}
@@ -93,9 +91,7 @@ export function SitesPage() {
           onChange={(e) => setDriveId(e.currentTarget.value)}
           placeholder="abc-123-drive-id"
         />
-        <button style={{ width: 100 }} onClick={createProject}>
-          Create project
-        </button>
+        <button style={{ width: 100 }}>Create project</button>
       </form>
       <Link to="account">Account</Link>
       {projects && (

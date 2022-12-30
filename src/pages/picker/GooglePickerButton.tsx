@@ -6,14 +6,13 @@ interface GooglePickerButtonProps {
 
 export function GooglePickerButton({ onSelected }: GooglePickerButtonProps) {
   const [openPicker] = useDrivePicker();
-  // const customViewsArray = [new google.picker.DocsView()]; // custom view
-  const handleOpenPicker = () => {
+  const handleOpenPicker = (view: 'DOCUMENTS' | 'FOLDERS') => {
     openPicker({
       clientId: process.env.REACT_APP_CLIENT_ID || '',
       developerKey: process.env.REACT_APP_API_KEY || '',
-      viewId: 'DOCUMENTS',
+      viewId: view,
       // token: token, // pass oauth token in case you already have one
-      setIncludeFolders: true,
+      setIncludeFolders: view === 'FOLDERS',
       setSelectFolderEnabled: true,
       showUploadView: false,
       showUploadFolders: false,
@@ -29,8 +28,9 @@ export function GooglePickerButton({ onSelected }: GooglePickerButtonProps) {
   };
 
   return (
-    <div>
-      <button onClick={() => handleOpenPicker()}>Open Picker</button>
+    <div style={{ display: 'flex', gap: 10 }}>
+      <button onClick={() => handleOpenPicker('DOCUMENTS')}>Create Page from Document</button>
+      <button onClick={() => handleOpenPicker('FOLDERS')}>Create Site from Folder</button>
     </div>
   );
 }
