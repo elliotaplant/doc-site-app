@@ -1,5 +1,4 @@
-import { FormEvent, useEffect, useState } from 'react';
-import { GooglePickerButton } from '../picker/GooglePickerButton';
+import { useEffect, useState } from 'react';
 import { useIdentityContext } from 'react-netlify-identity';
 import { Project } from '../../types';
 import { SiteCard } from './SiteCard';
@@ -8,8 +7,6 @@ import { PageTitle } from '../../layout/PageTitle';
 
 export function SitesPage() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [driveId, setDriveId] = useState('');
-  const [projectIdToCreate, setProjectIdToCreate] = useState('');
   const { authedFetch } = useIdentityContext();
 
   useEffect(() => {
