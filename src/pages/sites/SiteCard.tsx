@@ -23,7 +23,7 @@ export function SiteCard({ project, refreshFile }: SiteCardProps) {
     >
       <h3>{project.projectId}</h3>
       <div
-        style={{ display: 'flex', flexDirection: 'row-reverse', gap: '10px', marginBottom: '10px' }}
+        style={{ display: 'flex', flexDirection: 'row-reverse', gap: '40px', marginBottom: '10px' }}
       >
         <button onClick={() => refreshFile(project.projectId)}>Refresh File</button>
         <a href={`${driveFolderRoot}/${project.rootFileId}`} target="_blank" rel="noreferrer">

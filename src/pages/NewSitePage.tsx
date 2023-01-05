@@ -3,6 +3,7 @@ import { useIdentityContext } from 'react-netlify-identity';
 import { GooglePickerButton } from './picker/GooglePickerButton';
 import { serializeName } from '../utils';
 import { useNavigate } from 'react-router-dom';
+import { PageTitle } from '../layout/PageTitle';
 
 export function NewSitePage() {
   const [driveId, setDriveId] = useState('');
@@ -30,7 +31,8 @@ export function NewSitePage() {
     }
   };
   return (
-    <div>
+    <>
+      <PageTitle>New Site</PageTitle>
       <GooglePickerButton
         onSelected={({ name, id }) => {
           setDriveId(id);
@@ -48,6 +50,6 @@ export function NewSitePage() {
           <button style={{ width: 100 }}>Create project</button>
         </form>
       )}
-    </div>
+    </>
   );
 }

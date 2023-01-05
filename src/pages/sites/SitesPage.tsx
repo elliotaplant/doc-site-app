@@ -4,6 +4,7 @@ import { useIdentityContext } from 'react-netlify-identity';
 import { Project } from '../../types';
 import { SiteCard } from './SiteCard';
 import { Link } from 'react-router-dom';
+import { PageTitle } from '../../layout/PageTitle';
 
 export function SitesPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -40,19 +41,10 @@ export function SitesPage() {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: '800px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '16px',
-        padding: '16px',
-        margin: '0 auto',
-      }}
-    >
+    <>
+      <PageTitle>Sites</PageTitle>
       <Link to="new" style={{ alignSelf: 'flex-end' }}>
-        New Project
+        New Site
       </Link>
       {projects && (
         <ul
@@ -70,6 +62,6 @@ export function SitesPage() {
           ))}
         </ul>
       )}
-    </div>
+    </>
   );
 }
