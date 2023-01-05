@@ -1,4 +1,4 @@
-import { SitesPage } from './pages/SitesPage';
+import { SitesPage } from './pages/sites/SitesPage';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { IdentityContextProvider, useIdentityContext } from 'react-netlify-identity';
 import { LogInPage } from './pages/LogInPage';

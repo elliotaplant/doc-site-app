@@ -1,19 +1,11 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { GooglePickerButton } from './picker/GooglePickerButton';
-import { Link } from 'react-router-dom';
+import { GooglePickerButton } from '../picker/GooglePickerButton';
 import { useIdentityContext } from 'react-netlify-identity';
-
-const driveFolderRoot = 'https://drive.google.com/drive/folders';
-
-function makeRootUrl(project: any) {
-  if (process.env.REACT_APP_APPEND_SUBDOMAIN_TO_PATH) {
-    return `https://${project.projectId}.${process.env.REACT_APP_EXAMPLE_SITE}/${project.rootFile}`;
-  }
-  return `${process.env.REACT_APP_EXAMPLE_SITE}/${project.projectId}/${project.rootFile}`;
-}
+import { Project } from '../../types';
+import { SiteCard } from './SiteCard';
 
 export function SitesPage() {
-  const [projects, setProjects] = useState<any>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [driveId, setDriveId] = useState('');
   const [projectIdToCreate, setProjectIdToCreate] = useState('');
   const { authedFetch } = useIdentityContext();
@@ -93,23 +85,19 @@ export function SitesPage() {
         <button style={{ width: 100 }}>Create project</button>
       </form>
       {projects && (
-        <ul>
+        <ul
+          style={{
+            maxWidth: '800px',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            margin: 0,
+            padding: 0,
+          }}
+        >
           {projects.map((project: any) => (
-            <li
-              key={project.projectId}
-              style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}
-            >
-              {project.projectId}
-              <button onClick={() => refreshFile(project.projectId)}>Refresh File</button>
-              <a href={`${driveFolderRoot}/${project.rootFileId}`} target="_blank" rel="noreferrer">
-                Edit doc
-              </a>
-              {project.rootFile && (
-                <a href={makeRootUrl(project)} target="_blank" rel="noreferrer">
-                  Deployed Site
-                </a>
-              )}
-            </li>
+            <SiteCard key={project.projectId} project={project} refreshFile={refreshFile} />
           ))}
         </ul>
       )}
