@@ -4,11 +4,9 @@ import { createOAuth2Client } from '../drive';
 
 const handler: Handler = async (event, context) => {
   const code: string | undefined = event.queryStringParameters?.code;
-  if (!code) {
-    return {
-      statusCode: 403,
-      body: 'No code available in query params',
-    };
+  const state: string | undefined = event.queryStringParameters?.state;
+  if (!code || !state) {
+    return { statusCode: 403, body: 'Invalid auth URL provided' };
   }
 
   /**
@@ -22,7 +20,7 @@ const handler: Handler = async (event, context) => {
   oauth2Client.setCredentials(tokens);
 
   // Store the tokens in the backend
-  await fetchBackend('/drive-tokens', {
+  await fetchBackend(`/drive-tokens?userId=${state}`, {
     method: 'POST',
     body: JSON.stringify(tokens),
   });

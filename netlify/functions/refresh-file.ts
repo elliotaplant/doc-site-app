@@ -1,21 +1,25 @@
 import { Handler } from '@netlify/functions';
 import { fetchBackend, savePage } from '../backend';
-import { USER_ID } from '../constants';
 import { exportDoc, listFoldersAndDocs } from '../drive';
 import { formatPage } from '../format-page';
 import { serializeName } from '../naming';
 
-const handler: Handler = async (event) => {
+const handler: Handler = async (event, context) => {
+  const sub = context.clientContext?.user?.sub;
+  if (!sub) {
+    return { statusCode: 403, body: 'Unauthorized' };
+  }
+
   if (!event.body) {
     throw new Error('No project ID provided');
   }
   const parsedBody = JSON.parse(event.body);
   const projectId: string = parsedBody.projectId;
   if (!projectId) {
-    throw new Error('No project ID provided');
+    return { statusCode: 400, body: 'No project ID provided' };
   }
 
-  const projectsResponse = await fetchBackend(`/projects?userId=${USER_ID}`);
+  const projectsResponse = await fetchBackend(`/projects?userId=${sub}`);
   const projects: any = await projectsResponse.json();
   const project = projects?.find((project) => project.projectId === projectId);
   if (!project) {
@@ -25,7 +29,7 @@ const handler: Handler = async (event) => {
   try {
     const seen = new Set();
     const linkReplacements: Record<string, string> = {};
-    const queue = [{ rootFolderId: project.rootFileId, path: [projectId] }];
+    const queue = [{ rootFolderId: project.rootFileId, path: [] as string[] }];
     const docsToSave: { driveFileId: string; driveFileName: string; path: string[] }[] = [];
     while (queue.length) {
       const currentFile = queue.pop();
@@ -37,7 +41,7 @@ const handler: Handler = async (event) => {
         JSON.stringify({ rootFolderId: currentFile.rootFolderId, path: currentFile.path.join('/') })
       );
 
-      const { folders, docs } = await listFoldersAndDocs(currentFile.rootFolderId);
+      const { folders, docs } = await listFoldersAndDocs(currentFile.rootFolderId, sub);
       console.log('docs', docs);
 
       const folderWithoutNameOrId = folders.find((folder) => !folder.id || !folder.name);
@@ -68,8 +72,13 @@ const handler: Handler = async (event) => {
           path: currentFile.path,
         });
         const { serializedHtmlFileName } = serializePageNaming(doc.name || '');
-        const fullHtmlFilePath = [...currentFile.path, serializedHtmlFileName].join('/');
-        linkReplacements[doc.id || ''] = ['', 'pages', fullHtmlFilePath].join('/');
+        const fileDirectoryPath =
+          process.env.REACT_APP_APPEND_SUBDOMAIN_TO_PATH === 'true'
+            ? currentFile.path
+            : [projectId, ...currentFile.path];
+
+        const fullHtmlFilePath = [...fileDirectoryPath, serializedHtmlFileName].join('/');
+        linkReplacements[doc.id || ''] = ['', fullHtmlFilePath].join('/');
       }
 
       // Single page sites only have one file so listFoldersAndDocs returns nothing
@@ -84,7 +93,7 @@ const handler: Handler = async (event) => {
 
     const savedFiles = await Promise.all(
       docsToSave.map(({ driveFileId, driveFileName, path }) =>
-        saveFile(driveFileId, driveFileName, path, linkReplacements)
+        saveFile(projectId, driveFileId, driveFileName, path, linkReplacements, sub)
       )
     );
 
@@ -94,7 +103,7 @@ const handler: Handler = async (event) => {
     );
     console.log('updatedProjects', updatedProjects);
     const requestBody = JSON.stringify(updatedProjects);
-    const response = await fetchBackend(`/projects?userId=${USER_ID}`, {
+    const response = await fetchBackend(`/projects?userId=${sub}`, {
       method: 'POST',
       body: requestBody,
     });
@@ -103,7 +112,7 @@ const handler: Handler = async (event) => {
       return { statusCode: 500, body: 'Unable to save rootFile' };
     }
 
-    return { statusCode: 201 };
+    return { statusCode: 201, body: requestBody };
   } catch (e) {
     console.error(e);
     return {
@@ -114,16 +123,18 @@ const handler: Handler = async (event) => {
 };
 
 async function saveFile(
+  projectId: string,
   driveFileId: string,
   driveFileName: string,
   path: string[],
-  linkReplacements: Record<string, string>
+  linkReplacements: Record<string, string>,
+  sub: string
 ) {
   if (!driveFileId) {
     throw new Error('Doc file does not have an ID');
   }
 
-  const zip = await exportDoc(driveFileId);
+  const zip = await exportDoc(driveFileId, sub);
 
   // Find all the image entries and the html file
   const images = zip.getEntries().filter((entry) => entry.entryName.startsWith('images/'));
@@ -153,7 +164,7 @@ async function saveFile(
 
     imageReplacements[imageEntry.entryName] = filepath;
 
-    const resp = await savePage([...path, filepath].join('/'), imageEntry.getData());
+    const resp = await savePage([...path, filepath].join('/'), imageEntry.getData(), sub);
 
     if (!resp.ok) {
       throw new Error(`Unable to save ${filepath}: ${resp.statusText}`);
@@ -161,23 +172,21 @@ async function saveFile(
   }
 
   // Format and store the HTML document for the page
-  const fullHtmlFilePath = [...path, serializedHtmlFileName].join('/');
+  const htmlFilePathWithoutProject = [...path, serializedHtmlFileName].join('/');
+  const htmlFilePathWithProject = [projectId, htmlFilePathWithoutProject].join('/');
   const formattedPage = await formatPage(htmlFile.getData(), imageReplacements, linkReplacements);
-  const resp = await savePage(fullHtmlFilePath, formattedPage);
+  const resp = await savePage(htmlFilePathWithProject, formattedPage, sub);
 
   if (!resp.ok) {
     throw new Error(`Page save error: ${resp.statusText}`);
   }
 
-  return fullHtmlFilePath;
+  return htmlFilePathWithoutProject;
 }
 
 function serializePageNaming(driveFileName: string) {
-  const serializedHtmlFileName = serializeName(driveFileName + '.html');
-  const serializedPageName = serializedHtmlFileName.slice(
-    0,
-    serializedHtmlFileName.lastIndexOf('.')
-  );
+  const serializedPageName = serializeName(driveFileName);
+  const serializedHtmlFileName = serializedPageName + '.html';
 
   return { serializedHtmlFileName, serializedPageName };
 }

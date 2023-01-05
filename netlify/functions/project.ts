@@ -1,9 +1,14 @@
 import { Handler } from '@netlify/functions';
 import { fetchBackend } from '../backend';
-import { USER_ID } from '../constants';
 
 const handler: Handler = async (event, context) => {
-  const response = await fetchBackend(`/projects?userId=${USER_ID}`);
+  const sub = context.clientContext?.user?.sub;
+
+  if (!sub) {
+    return { statusCode: 403, body: 'Unauthorized' };
+  }
+
+  const response = await fetchBackend(`/projects?userId=${sub}`);
   const body = await response.text();
 
   // Return the existing projects
@@ -27,13 +32,12 @@ const handler: Handler = async (event, context) => {
 
     const newProject = { projectId, rootFileId };
     const requestBody = JSON.stringify([...existingProjects, newProject]);
-    const response = await fetchBackend(`/projects?userId=${USER_ID}`, {
+    const response = await fetchBackend(`/projects?userId=${sub}`, {
       method: 'POST',
       body: requestBody,
     });
 
-    const responseBody = await response.text();
-    return { statusCode: 201, body: responseBody };
+    return { statusCode: 201, body: JSON.stringify({ response }) };
   }
 
   return { statusCode: 405, body: 'Method not allowed' };
