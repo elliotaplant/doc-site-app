@@ -6,6 +6,7 @@ import { CreateAccountPage } from './pages/CreateAccountPage';
 import { AccountPage } from './pages/AccountPage';
 import { ConfirmEmailPage } from './pages/ConfirmEmailPage';
 import { UnconfirmedEmailPage } from './pages/UnconfirmedEmailPage';
+import { Header } from './layout/Header';
 
 export function App() {
   if (!process.env.REACT_APP_IDENTITY_CONTEXT_URL) {
@@ -14,6 +15,7 @@ export function App() {
 
   return (
     <IdentityContextProvider url={process.env.REACT_APP_IDENTITY_CONTEXT_URL}>
+      <Header />
       <PageRoutes />
     </IdentityContextProvider>
   );

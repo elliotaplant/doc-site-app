@@ -31,12 +31,6 @@ export function SitesPage() {
     };
   }, [setProjects, authedFetch]);
 
-  const connectGoogleDrive = async () => {
-    const { url } = await authedFetch.get('/.netlify/functions/drive-auth-url');
-    console.log('url', url);
-    window.open(url);
-  };
-
   const refreshFile = async (projectId: string) => {
     try {
       const resp = await authedFetch.post('/.netlify/functions/refresh-file', {
@@ -84,9 +78,6 @@ export function SitesPage() {
         padding: '16px',
       }}
     >
-      <button style={{ width: 100 }} onClick={connectGoogleDrive}>
-        Connect to Google Drive
-      </button>
       <GooglePickerButton onSelected={setDriveId} />
       <form onSubmit={(e) => createProject(e)} style={{ display: 'flex', gap: '10px' }}>
         <input
@@ -101,7 +92,6 @@ export function SitesPage() {
         />
         <button style={{ width: 100 }}>Create project</button>
       </form>
-      <Link to="account">Account</Link>
       {projects && (
         <ul>
           {projects.map((project: any) => (
