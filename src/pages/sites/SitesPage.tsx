@@ -3,6 +3,7 @@ import { GooglePickerButton } from '../picker/GooglePickerButton';
 import { useIdentityContext } from 'react-netlify-identity';
 import { Project } from '../../types';
 import { SiteCard } from './SiteCard';
+import { Link } from 'react-router-dom';
 
 export function SitesPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -38,56 +39,24 @@ export function SitesPage() {
     }
   };
 
-  const createProject = async (e: FormEvent) => {
-    try {
-      e.preventDefault();
-      const response = await authedFetch.post('/.netlify/functions/project', {
-        body: JSON.stringify({
-          projectId: projectIdToCreate,
-          rootFileId: driveId,
-        }),
-      });
-
-      if (response?.ok === false) {
-        throw new Error('Failed to create project');
-      }
-
-      setDriveId('');
-      setProjectIdToCreate('');
-      alert('Success');
-    } catch (e) {
-      alert(e);
-    }
-  };
-
   return (
     <div
       style={{
+        maxWidth: '800px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         gap: '16px',
         padding: '16px',
+        margin: '0 auto',
       }}
     >
-      <GooglePickerButton onSelected={setDriveId} />
-      <form onSubmit={(e) => createProject(e)} style={{ display: 'flex', gap: '10px' }}>
-        <input
-          value={projectIdToCreate}
-          onChange={(e) => setProjectIdToCreate(e.currentTarget.value)}
-          placeholder="project-id"
-        />
-        <input
-          value={driveId}
-          onChange={(e) => setDriveId(e.currentTarget.value)}
-          placeholder="abc-123-drive-id"
-        />
-        <button style={{ width: 100 }}>Create project</button>
-      </form>
+      <Link to="new" style={{ alignSelf: 'flex-end' }}>
+        New Project
+      </Link>
       {projects && (
         <ul
           style={{
-            maxWidth: '800px',
             width: '100%',
             display: 'flex',
             flexDirection: 'column',

@@ -7,6 +7,7 @@ import { AccountPage } from './pages/AccountPage';
 import { ConfirmEmailPage } from './pages/ConfirmEmailPage';
 import { UnconfirmedEmailPage } from './pages/UnconfirmedEmailPage';
 import { Header } from './layout/Header';
+import { NewSitePage } from './pages/NewSitePage';
 
 export function App() {
   if (!process.env.REACT_APP_IDENTITY_CONTEXT_URL) {
@@ -44,6 +45,7 @@ export function PageRoutes() {
     <Routes>
       <Route path="/" element={<SitesPage />} />
       <Route path="/account" element={<AccountPage />} />
+      <Route path="/new" element={<NewSitePage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
