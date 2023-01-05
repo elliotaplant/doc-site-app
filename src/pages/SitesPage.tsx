@@ -2,15 +2,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { GooglePickerButton } from './picker/GooglePickerButton';
 import { Link } from 'react-router-dom';
 import { useIdentityContext } from 'react-netlify-identity';
-
-const driveFolderRoot = 'https://drive.google.com/drive/folders';
-
-function makeRootUrl(project: any) {
-  if (process.env.REACT_APP_APPEND_SUBDOMAIN_TO_PATH) {
-    return `https://${project.projectId}.${process.env.REACT_APP_EXAMPLE_SITE}/${project.rootFile}`;
-  }
-  return `${process.env.REACT_APP_EXAMPLE_SITE}/${project.projectId}/${project.rootFile}`;
-}
+import { SiteCard } from './SiteCard';
 
 export function SitesPage() {
   const [projects, setProjects] = useState<any>(null);
@@ -103,23 +95,9 @@ export function SitesPage() {
       </form>
       <Link to="account">Account</Link>
       {projects && (
-        <ul>
+        <ul className="mt-4 flex flex-col space-y-6 md:mt-5 xl:grid xl:grid-cols-2 xl:gap-4 xl:space-y-0">
           {projects.map((project: any) => (
-            <li
-              key={project.projectId}
-              style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}
-            >
-              {project.projectId}
-              <button onClick={() => refreshFile(project.projectId)}>Refresh File</button>
-              <a href={`${driveFolderRoot}/${project.rootFileId}`} target="_blank" rel="noreferrer">
-                Edit doc
-              </a>
-              {project.rootFile && (
-                <a href={makeRootUrl(project)} target="_blank" rel="noreferrer">
-                  Deployed Site
-                </a>
-              )}
-            </li>
+            <SiteCard key={project.projectId} refreshFile={refreshFile} project={project} />
           ))}
         </ul>
       )}

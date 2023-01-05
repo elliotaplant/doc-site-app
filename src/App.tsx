@@ -1,5 +1,5 @@
 import { SitesPage } from './pages/SitesPage';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import { IdentityContextProvider, useIdentityContext } from 'react-netlify-identity';
 import { LogInPage } from './pages/LogInPage';
 import { CreateAccountPage } from './pages/CreateAccountPage';
@@ -14,7 +14,15 @@ export function App() {
 
   return (
     <IdentityContextProvider url={process.env.REACT_APP_IDENTITY_CONTEXT_URL}>
-      <PageRoutes />
+      <div className="relative min-h-screen flex-1 md:overflow-hidden">
+        <nav className="relative z-20 flex h-16 flex-1 shrink-0 items-center justify-between space-x-2 bg-layer-2 px-4 shadow sm:px-6">
+          <h1 className="text-3xl font-semibold text-heading">DocSite</h1>
+          <Link to="account" className="text-lg font-semibold text-heading">
+            Account
+          </Link>
+        </nav>
+        <PageRoutes />
+      </div>
     </IdentityContextProvider>
   );
 }
