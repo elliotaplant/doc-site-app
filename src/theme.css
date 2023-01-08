@@ -48,6 +48,11 @@
   background-color: rgb(var(--color-layer-2) / var(--tw-bg-opacity));
 }
 
+.border-muted-3 {
+  --tw-border-opacity: 1;
+  border-color: rgb(var(--color-muted-3) / var(--tw-border-opacity));
+}
+
 .text-heading {
   --tw-text-opacity: 1;
   color: rgb(var(--color-heading) / var(--tw-text-opacity));

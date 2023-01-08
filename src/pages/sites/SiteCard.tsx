@@ -9,31 +9,35 @@ export interface SiteCardProps {
 
 export function SiteCard({ project, refreshFile }: SiteCardProps) {
   return (
-    <li
-      key={project.projectId}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-        padding: '10px',
-        width: '100%',
-        border: '2px solid darkblue',
-        borderRadius: '16px',
-      }}
-    >
-      <h3>{project.projectId}</h3>
-      <div
-        style={{ display: 'flex', flexDirection: 'row-reverse', gap: '40px', marginBottom: '10px' }}
-      >
-        <button onClick={() => refreshFile(project.projectId)}>Refresh File</button>
-        <a href={`${driveFolderRoot}/${project.rootFileId}`} target="_blank" rel="noreferrer">
-          Edit Google Doc
-        </a>
-        {project.rootFile && (
-          <a href={makeRootUrl(project)} target="_blank" rel="noreferrer">
-            {makeRootOrigin(project)}
+    <li key={project.projectId} className="rounded-xl bg-layer-2">
+      <div className="w-full px-8 py-6">
+        <dt className="text-lg font-semibold text-heading">{project.projectId}</dt>
+        <div className="flex flex-row-reverse gap-4">
+          <button
+            className="inline-flex h-full cursor-pointer items-center justify-center rounded-xl border-2 border-muted-3 bg-transparent px-4 py-2.5 text-sm font-semibold text-text shadow-sm hover:text-heading focus:text-heading focus:outline-none focus:ring-2 focus:ring-orange-400/80 focus:ring-offset-0 disabled:opacity-30 disabled:hover:text-text dark:focus:ring-white/80"
+            onClick={() => refreshFile(project.projectId)}
+          >
+            Publish Site
+          </button>
+          <a
+            className="inline-flex h-full cursor-pointer items-center justify-center rounded-xl border-2 border-muted-3 bg-transparent px-4 py-2.5 text-sm font-semibold text-text shadow-sm hover:text-heading focus:text-heading focus:outline-none focus:ring-2 focus:ring-orange-400/80 focus:ring-offset-0 disabled:opacity-30 disabled:hover:text-text dark:focus:ring-white/80"
+            href={`${driveFolderRoot}/${project.rootFileId}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Edit Google Doc
           </a>
-        )}
+          {project.rootFile && (
+            <a
+              className="inline-flex h-full cursor-pointer items-center justify-center rounded-xl border-2 border-muted-3 bg-transparent px-4 py-2.5 text-sm font-semibold text-text shadow-sm hover:text-heading focus:text-heading focus:outline-none focus:ring-2 focus:ring-orange-400/80 focus:ring-offset-0 disabled:opacity-30 disabled:hover:text-text dark:focus:ring-white/80"
+              href={makeRootUrl(project)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Visit Published Site
+            </a>
+          )}
+        </div>
       </div>
     </li>
   );
