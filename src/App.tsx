@@ -15,12 +15,17 @@ export function App() {
   return (
     <IdentityContextProvider url={process.env.REACT_APP_IDENTITY_CONTEXT_URL}>
       <div className="relative min-h-screen flex-1 md:overflow-hidden">
-        <nav className="relative z-20 flex h-16 flex-1 shrink-0 items-center justify-between space-x-2 bg-layer-2 px-4 shadow sm:px-6">
+        <header className="relative z-20 flex h-16 flex-1 shrink-0 items-center justify-between bg-layer-2 px-4 shadow sm:px-6">
           <h1 className="text-3xl font-semibold text-heading">DocSite</h1>
-          <Link to="account" className="text-lg font-semibold text-heading">
-            Account
-          </Link>
-        </nav>
+          <nav className="flex space-x-4">
+            <Link to="/" className="text-lg font-semibold text-heading">
+              Sites
+            </Link>
+            <Link to="account" className="text-lg font-semibold text-heading">
+              Account
+            </Link>
+          </nav>
+        </header>
         <PageRoutes />
       </div>
     </IdentityContextProvider>
