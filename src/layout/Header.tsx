@@ -2,12 +2,15 @@ import { Link } from 'react-router-dom';
 
 export function Header() {
   return (
-    <header style={{ display: 'flex', justifyContent: 'space-between', padding: '10px' }}>
-      <h1 style={{ margin: 0 }}>DocSite</h1>
-
-      <nav style={{ display: 'flex', gap: '4px' }}>
-        <Link to="/">Sites</Link>
-        <Link to="account">Account</Link>
+    <header className="relative z-20 flex h-16 flex-1 shrink-0 items-center justify-between bg-layer-2 px-4 shadow sm:px-6">
+      <h1 className="text-3xl font-semibold text-heading">DocSite</h1>
+      <nav className="flex space-x-4">
+        <Link to="/" className="text-lg font-semibold text-heading">
+          Sites
+        </Link>
+        <Link to="account" className="text-lg font-semibold text-heading">
+          Account
+        </Link>
       </nav>
     </header>
   );

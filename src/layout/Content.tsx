@@ -11,7 +11,6 @@ export function Content({ children }: ContentProps) {
         maxWidth: '800px',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
         gap: '16px',
         padding: '16px',
         margin: '0 auto',
