@@ -1,11 +1,14 @@
-import { SitesPage } from './pages/SitesPage';
-import { Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import { IdentityContextProvider, useIdentityContext } from 'react-netlify-identity';
 import { LogInPage } from './pages/LogInPage';
 import { CreateAccountPage } from './pages/CreateAccountPage';
 import { AccountPage } from './pages/AccountPage';
 import { ConfirmEmailPage } from './pages/ConfirmEmailPage';
 import { UnconfirmedEmailPage } from './pages/UnconfirmedEmailPage';
+import { Header } from './layout/Header';
+import { NewSitePage } from './pages/NewSitePage';
+import { Content } from './layout/Content';
+import { Link, useLocation, Routes, Route, Navigate } from 'react-router-dom';
+import { SitesPage } from './pages/sites/SitesPage';
 
 export function App() {
   if (!process.env.REACT_APP_IDENTITY_CONTEXT_URL) {
@@ -52,10 +55,16 @@ export function PageRoutes() {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<SitesPage />} />
-      <Route path="/account" element={<AccountPage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <Header />
+      <Content>
+        <Routes>
+          <Route path="/" element={<SitesPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/new" element={<NewSitePage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Content>
+    </>
   );
 }

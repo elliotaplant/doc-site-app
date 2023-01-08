@@ -1,7 +1,8 @@
 import useDrivePicker from './picker';
+import { CallbackDoc } from './typeDefs';
 
 interface GooglePickerButtonProps {
-  onSelected: (googleDriveID: string) => void;
+  onSelected: (googleDriveID: CallbackDoc) => void;
 }
 
 export function GooglePickerButton({ onSelected }: GooglePickerButtonProps) {
@@ -21,7 +22,7 @@ export function GooglePickerButton({ onSelected }: GooglePickerButtonProps) {
       // customViews: customViewsArray, // custom view
       callbackFunction: ({ action, docs }) => {
         if (action === 'picked' && docs.length === 1 && docs[0].id) {
-          onSelected(docs[0].id);
+          onSelected(docs[0]);
         }
       },
     });
