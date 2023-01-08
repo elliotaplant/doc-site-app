@@ -39,10 +39,18 @@ export function SitesPage() {
 
   return (
     <>
-      <PageTitle>Sites</PageTitle>
-      <Link to="new" style={{ alignSelf: 'flex-end' }}>
-        New Site
-      </Link>
+      <PageTitle
+        actions={
+          <Link
+            to="new"
+            className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-xl border-2 border-muted-3 bg-transparent px-4 py-2.5 text-sm font-semibold text-text shadow-sm hover:text-heading focus:text-heading focus:outline-none focus:ring-2 focus:ring-orange-400/80 focus:ring-offset-0 disabled:opacity-30 disabled:hover:text-text dark:focus:ring-white/80"
+          >
+            New Site
+          </Link>
+        }
+      >
+        Sites
+      </PageTitle>
       {projects && (
         <ul
           style={{
