@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useIdentityContext } from 'react-netlify-identity';
@@ -35,9 +35,9 @@ export function LogInPage() {
         padding: '16px',
       }}
     >
-      <h1>Sign In</h1>
-      <form onSubmit={logIn} className="w-full max-w-sm">
-        <label htmlFor="email" className="block text-sm font-semibold text-heading">
+      <h1 className="text-heading text-3xl font-semibold">DocSite</h1>
+      <form onSubmit={logIn} className="flex w-full max-w-sm flex-col">
+        <label htmlFor="email" className="text-heading block text-sm font-semibold">
           Email
         </label>
         <input
@@ -45,30 +45,38 @@ export function LogInPage() {
           name="email"
           type="email"
           placeholder="you@email.com"
-          className="mt-2 block w-full rounded-xl border-2 border-muted-3 bg-transparent px-4 py-2.5 font-semibold text-heading placeholder:text-text/50 focus:border-primary focus:outline-none focus:ring-0 sm:text-sm"
+          className="border-muted-3 text-heading placeholder:text-text/50 focus:border-primary mt-2 block w-full rounded-xl border-2 bg-transparent px-4 py-2.5 font-semibold focus:outline-none focus:ring-0 sm:text-sm"
           onChange={(e) => setEmail(e.currentTarget.value)}
         />
 
-        <label htmlFor="password" className="mt-4 block text-sm font-semibold text-heading">
+        <label htmlFor="password" className="text-heading mt-4 block text-sm font-semibold">
           Password
         </label>
         <input
           id="password"
           name="password"
           type="password"
-          className="mt-2 block w-full rounded-xl border-2 border-muted-3 bg-transparent px-4 py-2.5 font-semibold text-heading placeholder:text-text/50 focus:border-primary focus:outline-none focus:ring-0 sm:text-sm"
+          className="border-muted-3 text-heading placeholder:text-text/50 focus:border-primary mt-2 block w-full rounded-xl border-2 bg-transparent px-4 py-2.5 font-semibold focus:outline-none focus:ring-0 sm:text-sm"
           onChange={(e) => setPassWord(e.currentTarget.value)}
         />
         {error ? <p>{error}</p> : null}
         <button
           type="submit"
           disabled={submitting}
-          className="w-full mt-6 inline-flex cursor-pointer items-center justify-center rounded-xl border-2 border-primary bg-primary px-4 py-2.5 text-base font-semibold text-white shadow-sm hover:border-primary-accent hover:bg-primary-accent focus:outline-none focus:ring-2 focus:ring-orange-400/80 focus:ring-offset-0 disabled:opacity-30 disabled:hover:border-primary disabled:hover:bg-primary disabled:hover:text-white dark:focus:ring-white/80"
+          className="border-primary bg-primary hover:border-primary-accent hover:bg-primary-accent disabled:hover:border-primary disabled:hover:bg-primary mt-6 inline-flex w-full cursor-pointer items-center justify-center rounded-xl border-2 px-4 py-2.5 text-base font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400/80 focus:ring-offset-0 disabled:opacity-30 disabled:hover:text-white dark:focus:ring-white/80"
         >
           Sign In
         </button>
       </form>
-      <Link to="../create-account">Create Account</Link>
+      <p className="text-text mt-6 text-center text-sm">
+        No account?&nbsp;
+        <Link
+          to="../create-account"
+          className="text-primary hover:text-primary-accent font-semibold"
+        >
+          Sign Up
+        </Link>
+      </p>
     </div>
   );
 }
