@@ -4,17 +4,9 @@ export function UnconfirmedEmailPage() {
   const { user } = useIdentityContext();
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '16px',
-        padding: '16px',
-      }}
-    >
-      <h1>Please confirm your email</h1>
-      <p>
+    <div className="flex flex-col gap-4 p-4 align-middle">
+      <h1 className="text-heading text-3xl font-semibold">Please confirm your email</h1>
+      <p className="text-text mt-6 text-center text-sm">
         We sent an email to {user?.email} with a confirmation link. If you did not receive the
         email, please check your spam folder.
       </p>

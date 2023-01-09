@@ -27,15 +27,7 @@ export function CreateAccountPage() {
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '16px',
-        padding: '16px',
-      }}
-    >
+    <div className="flex flex-col gap-4 p-4 align-middle">
       <h1 className="text-heading text-3xl font-semibold">DocSite</h1>
       <form onSubmit={signUp} className="flex w-full max-w-sm flex-col">
         <label htmlFor="email" className="text-heading block text-sm font-semibold">
