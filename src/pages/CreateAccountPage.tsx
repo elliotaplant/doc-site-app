@@ -27,7 +27,7 @@ export function CreateAccountPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 align-middle">
+    <div className="flex flex-col items-center gap-4 p-4">
       <h1 className="text-heading text-3xl font-semibold">DocSite</h1>
       <form onSubmit={signUp} className="flex w-full max-w-sm flex-col">
         <label htmlFor="email" className="text-heading block text-sm font-semibold">
