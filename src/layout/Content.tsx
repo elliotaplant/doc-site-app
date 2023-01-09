@@ -5,18 +5,5 @@ interface ContentProps {
 }
 
 export function Content({ children }: ContentProps) {
-  return (
-    <main
-      style={{
-        maxWidth: '800px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        padding: '16px',
-        margin: '0 auto',
-      }}
-    >
-      {children}
-    </main>
-  );
+  return <main className="scrollbar h-full py-8 px-6 md:overflow-y-auto md:px-8">{children}</main>;
 }

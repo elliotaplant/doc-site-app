@@ -56,6 +56,7 @@ export function LogInPage() {
           id="password"
           name="password"
           type="password"
+          placeholder="············"
           className="border-muted-3 text-heading placeholder:text-text/50 focus:border-primary mt-2 block w-full rounded-xl border-2 bg-transparent px-4 py-2.5 font-semibold focus:outline-none focus:ring-0 sm:text-sm"
           onChange={(e) => setPassWord(e.currentTarget.value)}
         />
@@ -65,7 +66,7 @@ export function LogInPage() {
           disabled={submitting}
           className="border-primary bg-primary hover:border-primary-accent hover:bg-primary-accent disabled:hover:border-primary disabled:hover:bg-primary mt-6 inline-flex w-full cursor-pointer items-center justify-center rounded-xl border-2 px-4 py-2.5 text-base font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400/80 focus:ring-offset-0 disabled:opacity-30 disabled:hover:text-white dark:focus:ring-white/80"
         >
-          Sign In
+          Login
         </button>
       </form>
       <p className="text-text mt-6 text-center text-sm">
