@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useIdentityContext } from 'react-netlify-identity';
+import { docSiteLogoSrc } from '../icons';
 
 export function LogInPage() {
   const { loginUser } = useIdentityContext();
@@ -27,7 +28,10 @@ export function LogInPage() {
 
   return (
     <div className="flex flex-col items-center gap-4 p-4">
-      <h1 className="text-heading text-3xl font-semibold">DocSite</h1>
+      <h1 className="text-heading text-3xl font-semibold flex gap-2">
+        <img src={docSiteLogoSrc} alt="DocSite Logo" className="inline-block w-8" />
+        <span>DocSite</span>
+      </h1>
       <form onSubmit={logIn} className="flex w-full max-w-sm flex-col">
         <label htmlFor="email" className="text-heading block text-sm font-semibold">
           Email
