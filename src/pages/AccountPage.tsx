@@ -8,7 +8,6 @@ export function AccountPage() {
 
   const connectGoogleDrive = async () => {
     const { url } = await authedFetch.get('/.netlify/functions/drive-auth-url');
-    console.log('url', url);
     window.open(url);
   };
 

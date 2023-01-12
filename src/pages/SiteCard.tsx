@@ -8,8 +8,8 @@ function makeRootUrl(project: any) {
 
 export function SiteCard({ project, refreshFile }: any) {
   return (
-    <li key={project.projectId} className="bg-layer-2 mb-4 flex gap-4 rounded-xl">
-      {project.projectId}
+    <li key={project.projectId} className="bg-layer-2 mb-4 flex gap-4 rounded-xl md:flex-col">
+      <h4 className="font-semibold text-lg">{project.projectId}</h4>
       <button onClick={() => refreshFile(project.projectId)}>Refresh File</button>
       <a href={`${driveFolderRoot}/${project.rootFileId}`} target="_blank" rel="noreferrer">
         Edit doc

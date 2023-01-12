@@ -86,7 +86,6 @@ export function CreateAccountPage() {
           >
             terms&nbsp;and&nbsp;conditions
           </a>
-          ;
         </p>
       </form>
     </div>
