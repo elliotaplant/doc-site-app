@@ -65,13 +65,30 @@ export function CreateAccountPage() {
         >
           Register
         </button>
+        <p className="text-text mt-6 text-center text-sm">
+          Already have an account?&nbsp;
+          <Link to="../log-in" className="text-primary hover:text-primary-accent font-semibold">
+            Login
+          </Link>
+        </p>
+        <p className="text-text mt-6 text-center text-sm">
+          By signing up, you agree to DocSite's{' '}
+          <a
+            className="text-primary hover:text-primary-accent font-semibold"
+            href="https://docsite.io/privacy"
+          >
+            privacy&nbsp;policy
+          </a>{' '}
+          and{' '}
+          <a
+            className="text-primary hover:text-primary-accent font-semibold"
+            href="https://www.docsite.io/terms-and-conditions"
+          >
+            terms&nbsp;and&nbsp;conditions
+          </a>
+          ;
+        </p>
       </form>
-      <p className="text-text mt-6 text-center text-sm">
-        Already have an account?&nbsp;
-        <Link to="../log-in" className="text-primary hover:text-primary-accent font-semibold">
-          Login
-        </Link>
-      </p>
     </div>
   );
 }
