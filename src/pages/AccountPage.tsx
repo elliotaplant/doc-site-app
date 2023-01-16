@@ -13,8 +13,7 @@ export function AccountPage() {
   const { data, error } = useSWR(DRIVE_CONNECTED_URL, () => authedFetch.get(DRIVE_CONNECTED_URL));
 
   const showGoogleSignin = error || (data && !data.driveConnected);
-  const showDriveConnected = data?.driveConnected;
-  console.log('showDriveConnected', showDriveConnected);
+  const showDriveConnected = !error && data?.driveConnected;
 
   const connectGoogleDrive = async () => {
     const { url } = await authedFetch.get('/.netlify/functions/drive-auth-url');
