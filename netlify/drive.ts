@@ -1,4 +1,5 @@
 import { fetchBackend } from './backend';
+import { expiresSoon } from './tokens';
 import { google } from 'googleapis';
 import { Credentials } from 'google-auth-library';
 import { streamToBuffer } from './format-page';
@@ -16,14 +17,17 @@ export function createOAuth2Client() {
 async function getOauth2Client(sub: string) {
   const tokensResponse = await fetchBackend(`/drive-tokens?userId=${sub}`);
   const tokens: Credentials = (await tokensResponse.json()) as any;
-
   const oauth2Client = createOAuth2Client();
   oauth2Client.setCredentials(tokens);
 
-  // Refresh the access token, if necessary
-  const { token } = await oauth2Client.getAccessToken();
-  tokens.access_token = token;
-  oauth2Client.setCredentials(tokens);
+  if (expiresSoon(tokens.expiry_date || Infinity)) {
+    const { credentials } = await oauth2Client.refreshAccessToken();
+    await fetchBackend(`/drive-tokens?userId=${sub}`, {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+    oauth2Client.setCredentials(credentials);
+  }
 
   return oauth2Client;
 }

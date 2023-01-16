@@ -28,7 +28,11 @@ export function AccountPage() {
           <h3 className="font-semibold text-lg">{user!.email}</h3>
           <label className="mt-8 text-md">Connect to Google Drive</label>
 
-          {showDriveConnected && <SuccessChip>Connected</SuccessChip>}
+          {showDriveConnected && (
+            <button className="self-start" onClick={connectGoogleDrive}>
+              <SuccessChip>Connected</SuccessChip>
+            </button>
+          )}
 
           {showGoogleSignin && (
             <button className="inline gap-6 items-center self-start" onClick={connectGoogleDrive}>
