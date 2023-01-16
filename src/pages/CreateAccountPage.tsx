@@ -17,12 +17,12 @@ export function CreateAccountPage() {
     signupUser(email, password, {})
       .then(() => loginUser(email, password, true))
       .catch((error) => {
+        console.error(error);
         if (error?.json?.error_description) {
           setError(error.json.error_description);
         } else {
           setError('Failed to log in');
         }
-        console.log(error);
       })
       .finally(() => setSubmitting(false));
   };

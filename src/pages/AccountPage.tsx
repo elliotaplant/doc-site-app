@@ -1,8 +1,8 @@
 import { useIdentityContext } from 'react-netlify-identity';
 import { googleSigninButtonSrc } from '../icons';
 import { PageTitle } from '../layout/PageTitle';
-import useSWR from 'swr';
 import { SuccessChip } from '../components/SuccessChip';
+import { useAuthedGet } from '../hooks/useAuthedGet';
 
 const DRIVE_CONNECTED_URL = '/.netlify/functions/drive-connected';
 
@@ -10,7 +10,7 @@ export function AccountPage() {
   const { user, logoutUser } = useIdentityContext();
   const { authedFetch } = useIdentityContext();
 
-  const { data, error } = useSWR(DRIVE_CONNECTED_URL, () => authedFetch.get(DRIVE_CONNECTED_URL));
+  const { data, error } = useAuthedGet<{ driveConnected: boolean }>(DRIVE_CONNECTED_URL);
 
   const showGoogleSignin = error || (data && !data.driveConnected);
   const showDriveConnected = !error && data?.driveConnected;

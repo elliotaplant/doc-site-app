@@ -1,41 +1,14 @@
-import { useEffect, useState } from 'react';
-import { useIdentityContext } from 'react-netlify-identity';
 import { Project } from '../../types';
 import { SiteCard } from './SiteCard';
 import { Link } from 'react-router-dom';
 import { PageTitle } from '../../layout/PageTitle';
+import { FormError } from '../../components/FormError';
+import { useAuthedGet } from '../../hooks/useAuthedGet';
+
+const PROJECTS_URL = '/.netlify/functions/project';
 
 export function SitesPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const { authedFetch } = useIdentityContext();
-
-  useEffect(() => {
-    let unmounted = false;
-
-    authedFetch
-      .get('/.netlify/functions/project')
-      .then((projects) => unmounted || setProjects(projects))
-      .catch(console.error);
-
-    return () => {
-      unmounted = true;
-    };
-  }, [setProjects, authedFetch]);
-
-  const refreshFile = async (projectId: string) => {
-    try {
-      const resp = await authedFetch.post('/.netlify/functions/refresh-file', {
-        body: JSON.stringify({ projectId }),
-      });
-      if (resp?.ok === false) {
-        throw new Error(resp);
-      }
-      setProjects(resp);
-      alert('Success');
-    } catch (e) {
-      alert(e);
-    }
-  };
+  const { data, error, mutate } = useAuthedGet<Project[]>(PROJECTS_URL);
 
   return (
     <>
@@ -51,10 +24,11 @@ export function SitesPage() {
       >
         Sites
       </PageTitle>
-      {projects && (
+      {error && <FormError>Failed to load sites</FormError>}
+      {data && (
         <ul className="mt-4 flex w-full flex-col gap-4">
-          {projects.map((project: any) => (
-            <SiteCard key={project.projectId} project={project} refreshFile={refreshFile} />
+          {data.map((project: any) => (
+            <SiteCard key={project.projectId} project={project} mutateProjects={mutate} />
           ))}
         </ul>
       )}
