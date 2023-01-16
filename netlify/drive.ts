@@ -14,7 +14,7 @@ export function createOAuth2Client() {
   );
 }
 
-async function getOauth2Client(sub: string) {
+export async function getOauth2Client(sub: string) {
   const tokensResponse = await fetchBackend(`/drive-tokens?userId=${sub}`);
   const tokens: Credentials = (await tokensResponse.json()) as any;
   const oauth2Client = createOAuth2Client();

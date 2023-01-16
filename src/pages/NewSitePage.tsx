@@ -48,6 +48,7 @@ export function NewSitePage() {
       };
     }
   };
+
   return (
     <>
       <PageTitle>New Site</PageTitle>

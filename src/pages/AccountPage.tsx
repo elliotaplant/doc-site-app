@@ -3,22 +3,17 @@ import { googleSigninButtonSrc } from '../icons';
 import { PageTitle } from '../layout/PageTitle';
 import { SuccessChip } from '../components/SuccessChip';
 import { useAuthedGet } from '../hooks/useAuthedGet';
+import { useConnectGoogleDrive } from '../hooks/useConnectGoogleDrive';
 
 const DRIVE_CONNECTED_URL = '/.netlify/functions/drive-connected';
 
 export function AccountPage() {
   const { user, logoutUser } = useIdentityContext();
-  const { authedFetch } = useIdentityContext();
-
   const { data, error } = useAuthedGet<{ driveConnected: boolean }>(DRIVE_CONNECTED_URL);
+  const connectGoogleDrive = useConnectGoogleDrive();
 
   const showGoogleSignin = error || (data && !data.driveConnected);
   const showDriveConnected = !error && data?.driveConnected;
-
-  const connectGoogleDrive = async () => {
-    const { url } = await authedFetch.get('/.netlify/functions/drive-auth-url');
-    window.open(url);
-  };
 
   return (
     <>

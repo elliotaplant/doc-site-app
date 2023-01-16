@@ -1,3 +1,6 @@
+import { useAuthedGet } from '../../hooks/useAuthedGet';
+import { useConnectGoogleDrive } from '../../hooks/useConnectGoogleDrive';
+import { googleSigninButtonSrc } from '../../icons';
 import useDrivePicker from './picker';
 import { CallbackDoc } from './typeDefs';
 
@@ -5,14 +8,19 @@ interface GooglePickerButtonProps {
   onSelected: (googleDriveID: CallbackDoc) => void;
 }
 
+const GOOGLE_PICKER_TOKEN_URL = '/.netlify/functions/picker-token';
+
 export function GooglePickerButton({ onSelected }: GooglePickerButtonProps) {
   const [openPicker] = useDrivePicker();
+  const { data, error } = useAuthedGet<{ pickerToken: string | null }>(GOOGLE_PICKER_TOKEN_URL);
+  const connectGoogleDrive = useConnectGoogleDrive();
+
   const handleOpenPicker = (view: 'DOCUMENTS' | 'FOLDERS') => {
     openPicker({
       clientId: process.env.REACT_APP_CLIENT_ID || '',
       developerKey: process.env.REACT_APP_API_KEY || '',
       viewId: view,
-      // token: token, // pass oauth token in case you already have one
+      token: data?.pickerToken || undefined, // pass oauth token in case you already have one
       setIncludeFolders: view === 'FOLDERS',
       setSelectFolderEnabled: true,
       showUploadView: false,
@@ -27,6 +35,19 @@ export function GooglePickerButton({ onSelected }: GooglePickerButtonProps) {
       },
     });
   };
+
+  if (error || !data?.pickerToken) {
+    return (
+      <div className="mt-4 flex flex-col gap-4">
+        <p className="mt-2 text-md font-medium">
+          Please connect your Google account to DocSite to create a new site
+        </p>
+        <button className="inline gap-6 items-center self-start" onClick={connectGoogleDrive}>
+          <img src={googleSigninButtonSrc} alt="Google Sign in button" />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4 flex flex-col gap-4 sm:flex-row">
