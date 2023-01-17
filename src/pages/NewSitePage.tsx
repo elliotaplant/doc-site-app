@@ -73,7 +73,7 @@ export function NewSitePage() {
                   placeholder="project-id"
                   spellcheck={false}
                   component={TextField}
-                  helpText="You can use lowercase letters, numbers, and dashes (-). Must be globally unique."
+                  helpText="You can use lowercase letters, numbers, and '-'. Must be globally unique."
                   validate={projectIdValidator}
                 />
                 <button
