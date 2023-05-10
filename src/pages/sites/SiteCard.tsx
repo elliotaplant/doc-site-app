@@ -81,5 +81,5 @@ function makeRootUrl(project: Project) {
   if (process.env.REACT_APP_APPEND_SUBDOMAIN_TO_PATH) {
     return `https://${project.projectId}.${process.env.REACT_APP_EXAMPLE_SITE}/${project.rootFile}`;
   }
-  return `${process.env.REACT_APP_EXAMPLE_SITE}/${project.projectId}/${project.rootFileId}`;
+  return `${process.env.REACT_APP_EXAMPLE_SITE}/${project.projectId}/${project.rootFile}`;
 }

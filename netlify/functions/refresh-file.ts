@@ -164,10 +164,13 @@ async function saveFile(
 
     imageReplacements[imageEntry.entryName] = filepath;
 
-    const resp = await savePage([...path, filepath].join('/'), imageEntry.getData(), sub);
+    const imagePath = [projectId, ...path, filepath].join('/');
+    const resp = await savePage(imagePath, imageEntry.getData(), sub);
 
     if (!resp.ok) {
       throw new Error(`Unable to save ${filepath}: ${resp.statusText}`);
+    } else {
+      console.log('Saved image', { imagePath });
     }
   }
 

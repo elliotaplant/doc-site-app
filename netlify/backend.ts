@@ -10,6 +10,6 @@ export function fetchBackend(path: string, options: RequestInit = {}) {
   });
 }
 
-export function savePage(key: string, contents: Buffer | string, sub) {
+export function savePage(key: string, contents: Buffer | string, sub: string) {
   return fetchBackend(`/pages/${key}?userId=${sub}`, { method: 'POST', body: contents });
 }
